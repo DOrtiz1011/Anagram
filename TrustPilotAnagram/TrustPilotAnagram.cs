@@ -15,7 +15,7 @@ namespace TrustPilotAnagram
     /// Anagram programming challege for TrustPilot
     /// http://followthewhiterabbit.trustpilot.com/cs/step3.html
     /// </summary>
-    class TrustPilotAnagram
+    public class TrustPilotAnagram
     {
         #region Members
 
@@ -75,12 +75,14 @@ namespace TrustPilotAnagram
         {
             get
             {
-                if (!StartDateTime.HasValue || !EndDateTime.HasValue)
+                var searchTimeSpan = default(TimeSpan?);
+
+                if (StartDateTime.HasValue || EndDateTime.HasValue)
                 {
-                    throw new ApplicationException("Search was not run.");
+                    searchTimeSpan = EndDateTime - StartDateTime;
                 }
 
-                return EndDateTime - StartDateTime;
+                return searchTimeSpan;
             }
         }
 
@@ -132,21 +134,20 @@ namespace TrustPilotAnagram
             MD5HashKeyOfSolution = md5HashKeyOfSolution;
             InputFile = inputFile;
             NumberOfPhraseComparisons = 0;
-
-            StartDateTime = DateTime.Now;
-            Console.WriteLine("Started search:\t" + StartDateTime.Value.ToString());
-
-            readInputFile();
             MD5Hash = MD5.Create();
 
+            StartDateTime = DateTime.Now;
+            Console.WriteLine("Started search:\t\t" + StartDateTime.Value.ToString());
+            
+            ReadInputFile();
             var secretPhrase = SearchPhrases();
             //var secretPhrase = SearchPhrasesInterative();
-            MD5Hash.Dispose();
 
             EndDateTime = DateTime.Now;
+            MD5Hash.Dispose();
 
-            Console.WriteLine("Ended search:\t" + EndDateTime.Value.ToString());
-            Console.WriteLine("Time elapsed:\t" + SearchTimeSpan.ToString());
+            Console.WriteLine("Ended search:\t\t" + EndDateTime.Value.ToString());
+            Console.WriteLine("Time elapsed:\t\t" + SearchTimeSpan.ToString());
             Console.WriteLine("Number of comparisons:\t" + NumberOfPhraseComparisons);
 
             return secretPhrase;
@@ -155,8 +156,10 @@ namespace TrustPilotAnagram
         /// <summary>
         /// Loops through all the words in the input file and only adds words that meet the criteria to filteredWordList
         /// </summary>
-        private void readInputFile()
+        private void ReadInputFile()
         {
+            var start = DateTime.Now;
+
             foreach (var word in File.ReadAllLines(InputFile).ToList())
             {
                 if (!ExcludeWord(word.Trim().ToLower()))
@@ -166,6 +169,8 @@ namespace TrustPilotAnagram
             }
 
             filteredWordList = filteredWordList.OrderBy(x => x).Distinct().ToList();
+
+            Console.WriteLine("Word filtering time:\t{0}", (DateTime.Now - start).ToString());
         }
 
         /// <summary>

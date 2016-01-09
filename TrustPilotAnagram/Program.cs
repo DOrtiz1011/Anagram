@@ -16,7 +16,7 @@ namespace TrustPilotAnagram
 
             if (!string.IsNullOrEmpty(secretPhrase))
             {
-                Console.WriteLine("The secret phrase is: " + secretPhrase);
+                Console.WriteLine("The secret phrase is:\t" + secretPhrase);
             }
             else
             {
