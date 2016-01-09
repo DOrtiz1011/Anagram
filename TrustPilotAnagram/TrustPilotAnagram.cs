@@ -215,11 +215,11 @@ namespace TrustPilotAnagram
             var lengthTuplesList = new List<Tuple<int, int, int>>();
 
             // create tuples of words whos lengths add up to the length of the hint phrase minus the two spaces
-            for (int first = 0; first < wordLengthsDictionary.Count; first++)
+            for (var first = 0; first < wordLengthsDictionary.Count; first++)
             {
-                for (int second = 0; second < wordLengthsDictionary.Count; second++)
+                for (var second = 0; second < wordLengthsDictionary.Count; second++)
                 {
-                    for (int third = 0; third < wordLengthsDictionary.Count; third++)
+                    for (var third = 0; third < wordLengthsDictionary.Count; third++)
                     {
                         var totalLength = wordLengthsDictionary.ElementAt(first).Key + wordLengthsDictionary.ElementAt(second).Key + wordLengthsDictionary.ElementAt(third).Key;
 
@@ -236,23 +236,17 @@ namespace TrustPilotAnagram
             // use the tuple to make only phrases of length 20
             foreach (var tuple in lengthTuplesList)
             {
-                var list1 = wordLengthsDictionary.ElementAt(tuple.Item1).Value;
-                var list2 = wordLengthsDictionary.ElementAt(tuple.Item2).Value;
-                var list3 = wordLengthsDictionary.ElementAt(tuple.Item3).Value;
-
-                foreach (var word1 in list1)
+                foreach (var word1 in wordLengthsDictionary.ElementAt(tuple.Item1).Value)
                 {
-                    foreach (var word2 in list2)
+                    foreach (var word2 in wordLengthsDictionary.ElementAt(tuple.Item2).Value)
                     {
-                        phrase.Clear();
-                        phrase.Append(string.Format("{0} {1}", word1, word2));
+                        phrase.Clear().Append(string.Format("{0} {1}", word1, word2));
 
                         if (!ExcludeWord(phrase.ToString()))   // Its possible for a pair to be invalid on their own by violating the cardinality of any char. This saves alot of time.
                         {
-                            foreach (var word3 in list3)
+                            foreach (var word3 in wordLengthsDictionary.ElementAt(tuple.Item3).Value)
                             {
-                                phrase.Clear();
-                                phrase.Append(string.Format("{0} {1} {2}", word1, word2, word3));
+                                phrase.Clear().Append(string.Format("{0} {1} {2}", word1, word2, word3));
 
                                 if (!ExcludePhrase(phrase.ToString()) && VerifyMd5Hash(phrase.ToString()))
                                 {
@@ -300,7 +294,7 @@ namespace TrustPilotAnagram
         /// <returns></returns>
         private bool ExcludeWord(string word)
         {
-            var exclude = false;
+            var excludeWord = false;
 
             // word must be shorter than or equal to the length of the hint phrase
             if (word.Length <= HintPhrase.Length)
@@ -312,17 +306,18 @@ namespace TrustPilotAnagram
                     if (!CharCountFromHintDictionary.ContainsKey(keyValuePair.Key) || CharCountFromHintDictionary[keyValuePair.Key] < keyValuePair.Value)
                     {
                         // if the hash table does have the char or the number of times the char appears is to large the word will be excluded.
-                        exclude = true;
+                        excludeWord = true;
                         break;
                     }
                 }
             }
             else
             {
-                exclude = true;
+                // word is too long
+                excludeWord = true;
             }
 
-            return exclude;
+            return excludeWord;
         }
 
         /// <summary>
