@@ -141,7 +141,6 @@ namespace TrustPilotAnagram
             
             ReadInputFile();
             var secretPhrase = SearchPhrases();
-            //var secretPhrase = SearchPhrasesInterative();
 
             EndDateTime = DateTime.Now;
             MD5Hash.Dispose();
@@ -168,9 +167,11 @@ namespace TrustPilotAnagram
                 }
             }
 
-            filteredWordList = filteredWordList.OrderBy(x => x).Distinct().ToList();
+            // Sort the filtered words first by length then alphabetically. This will make the search alot faster later.
+            filteredWordList = filteredWordList.OrderByDescending(x => x.Length).ThenBy(x => x).Distinct().ToList();
 
             Console.WriteLine("Word filtering time:\t{0}", (DateTime.Now - start).ToString());
+            Console.WriteLine("Words filtered:\t\t{0}", filteredWordList.Count);
         }
 
         /// <summary>
@@ -242,7 +243,9 @@ namespace TrustPilotAnagram
                     {
                         phrase.Clear().Append(string.Format("{0} {1}", word1, word2));
 
-                        if (!ExcludeWord(phrase.ToString()))   // Its possible for a pair to be invalid on their own by violating the cardinality of any char. This saves alot of time.
+                        // Its possible for a pair to be invalid on their own by violating the cardinality of any char. This saves alot of time.
+                        // The sorting by length decending shows its benifit by excluding many two word phrases at this point.
+                        if (!ExcludeWord(phrase.ToString()))
                         {
                             foreach (var word3 in wordLengthsDictionary.ElementAt(tuple.Item3).Value)
                             {
