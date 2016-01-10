@@ -176,7 +176,7 @@ namespace TrustPilotAnagram
 
         /// <summary>
         /// Creates a hash (Dictionary) using the word length as a key and a List<string> as the value.
-        /// This list has all filtered words that are of the legth of the key
+        /// This list has all filtered words that are of the length of the key
         /// </summary>
         /// <returns></returns>
         private Dictionary<int, List<string>> CreateWordLengthsDictionary()
@@ -208,14 +208,16 @@ namespace TrustPilotAnagram
         /// <returns>The secret phrase or null if not found</returns>
         private string SearchPhrases()
         {
-            // must be three words because the spaces count in the MD5 hash key  
+            // must be three words because the spaces count in the MD5 hash key
+            // words cannot have spaces
+            // assumes that no leading or trail white space exists
             var wordLengthsDictionary = CreateWordLengthsDictionary();
-            var lengthWithoutSpaces = HintPhrase.Length - 2;
+            var lengthWithoutSpaces = HintPhrase.Length - CharCountFromHintDictionary[' '];
 
             // Get three word sets that have combined lengthWithoutSpaces chars. The ints reprent indexes in the wordLengthsDictionary.
             var lengthTuplesList = new List<Tuple<int, int, int>>();
 
-            // create tuples of words whos lengths add up to the length of the hint phrase minus the two spaces
+            // create tuples of words whos lengths add up to the length of the hint phrase minus the spaces
             for (var first = 0; first < wordLengthsDictionary.Count; first++)
             {
                 for (var second = 0; second < wordLengthsDictionary.Count; second++)
