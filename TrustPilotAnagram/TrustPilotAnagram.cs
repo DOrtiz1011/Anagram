@@ -22,7 +22,7 @@ namespace TrustPilotAnagram
         /// <summary>
         /// MD5 object instance
         /// </summary>
-        private MD5 MD5Hash = MD5.Create();
+        private MD5 MD5Hash;
 
         /// <summary>
         /// Backing field for the lazy loaded CharCountFromHintDictionary properety
