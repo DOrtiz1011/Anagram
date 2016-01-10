@@ -24,19 +24,14 @@ namespace TrustPilotAnagram
         /// </summary>
         private MD5 MD5Hash;
 
-        /// <summary>
-        /// Backing field for the lazy loaded CharCountFromHintDictionary properety
-        /// </summary>
-        private Dictionary<char, int> _charCountDictionary;
+        #endregion
+
+        #region Properties
 
         /// <summary>
         /// List of all the words from the input file that meet all the restrictions based on the hint phrase
         /// </summary>
-        private List<string> filteredWordList = new List<string>();
-
-        #endregion
-
-        #region Properties
+        private List<string> FilteredWordList { get; set; }
 
         /// <summary>
         /// Anagram of the secret phrase used to filter the list of words.
@@ -87,20 +82,9 @@ namespace TrustPilotAnagram
         }
 
         /// <summary>
-        /// Lazy loaded property for a hash that uses the chars in the hint phrase as a key and the number of times that char appears as the value.
+        /// Hash that uses the chars in the hint phrase as a key and the number of times that char appears as the value.
         /// </summary>
-        private Dictionary<char, int> CharCountFromHintDictionary
-        {
-            get
-            {
-                if (_charCountDictionary == null)
-                {
-                    _charCountDictionary = GetCharCountFromString(HintPhrase);
-                }
-
-                return _charCountDictionary;
-            }
-        }
+        private Dictionary<char, int> CharCountFromHintDictionary { get; set; }
 
         #endregion Properties
 
@@ -130,24 +114,42 @@ namespace TrustPilotAnagram
                 throw new ArgumentNullException("inputFile", "inputFile is null or empty.");
             }
 
-            HintPhrase = hintPhrase;
+            // Initialize
+            HintPhrase = hintPhrase.Trim().ToLower();
             MD5HashKeyOfSolution = md5HashKeyOfSolution;
-            InputFile = inputFile;
+            InputFile = inputFile.Trim();
             NumberOfPhraseComparisons = 0;
             MD5Hash = MD5.Create();
+            FilteredWordList = new List<string>();
 
             StartDateTime = DateTime.Now;
             Console.WriteLine("Started search:\t\t" + StartDateTime.Value.ToString());
-            
+
+            CharCountFromHintDictionary = GetCharCountFromString(HintPhrase);
             ReadInputFile();
             var secretPhrase = SearchPhrases();
 
             EndDateTime = DateTime.Now;
+
+            // clean up
             MD5Hash.Dispose();
+            CharCountFromHintDictionary.Clear();
+            CharCountFromHintDictionary = null;
+            FilteredWordList.Clear();
+            FilteredWordList = null;
 
             Console.WriteLine("Ended search:\t\t" + EndDateTime.Value.ToString());
             Console.WriteLine("Time elapsed:\t\t" + SearchTimeSpan.ToString());
             Console.WriteLine("Number of comparisons:\t" + NumberOfPhraseComparisons);
+
+            if (!string.IsNullOrEmpty(secretPhrase))
+            {
+                Console.WriteLine("\nThe secret phrase is:\t{0}\n\n\n", secretPhrase);
+            }
+            else
+            {
+                Console.WriteLine("\nThe secret phrase was not found.\n\n\n");
+            }
 
             return secretPhrase;
         }
@@ -163,15 +165,15 @@ namespace TrustPilotAnagram
             {
                 if (!ExcludeWord(word.Trim().ToLower()))
                 {
-                    filteredWordList.Add(word.ToLower());
+                    FilteredWordList.Add(word.ToLower());
                 }
             }
 
             // Sort the filtered words first by length then alphabetically. This will make the search alot faster later.
-            filteredWordList = filteredWordList.OrderByDescending(x => x.Length).ThenBy(x => x).Distinct().ToList();
+            FilteredWordList = FilteredWordList.OrderByDescending(x => x.Length).ThenBy(x => x).Distinct().ToList();
 
             Console.WriteLine("Word filtering time:\t{0}", (DateTime.Now - start).ToString());
-            Console.WriteLine("Words filtered:\t\t{0}", filteredWordList.Count);
+            Console.WriteLine("Words filtered:\t\t{0}", FilteredWordList.Count);
         }
 
         /// <summary>
@@ -183,7 +185,7 @@ namespace TrustPilotAnagram
         {
             var wordLengthsDictionary = new Dictionary<int, List<string>>();
 
-            foreach (var word in filteredWordList)
+            foreach (var word in FilteredWordList)
             {
                 if (wordLengthsDictionary.ContainsKey(word.Length))
                 {
