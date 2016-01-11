@@ -277,7 +277,7 @@ namespace TrustPilotAnagram
         private Dictionary<char, int> GetCharCountFromString(string stringToCount)
         {
             var countDictionary = new Dictionary<char, int>();
-            var charList = stringToCount.Trim().ToCharArray().OrderBy(x => x).ToList();
+            var charList = stringToCount.Trim().ToCharArray();
 
             foreach (var character in charList)
             {
