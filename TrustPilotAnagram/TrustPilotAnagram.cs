@@ -72,7 +72,7 @@ namespace TrustPilotAnagram
             {
                 var searchTimeSpan = default(TimeSpan?);
 
-                if (StartDateTime.HasValue || EndDateTime.HasValue)
+                if (StartDateTime.HasValue && EndDateTime.HasValue)
                 {
                     searchTimeSpan = EndDateTime - StartDateTime;
                 }
