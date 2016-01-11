@@ -245,7 +245,7 @@ namespace TrustPilotAnagram
                 {
                     foreach (var word2 in wordLengthsDictionary.ElementAt(tuple.Item2).Value)
                     {
-                        phrase.Clear().Append(string.Format("{0} {1}", word1, word2));
+                        phrase.Clear().Append(word1).Append(" ").Append(word2);
 
                         // Its possible for a pair to be invalid on their own by violating the cardinality of any char. This saves alot of time.
                         // The sorting by length decending shows its benifit by excluding many two word phrases at this point.
@@ -253,7 +253,7 @@ namespace TrustPilotAnagram
                         {
                             foreach (var word3 in wordLengthsDictionary.ElementAt(tuple.Item3).Value)
                             {
-                                phrase.Clear().Append(string.Format("{0} {1} {2}", word1, word2, word3));
+                                phrase.Clear().Append(word1).Append(" ").Append(word2).Append(" ").Append(word3);
 
                                 if (!ExcludePhrase(phrase.ToString()) && VerifyMd5Hash(phrase.ToString()))
                                 {
