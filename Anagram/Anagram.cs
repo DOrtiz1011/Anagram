@@ -5,17 +5,11 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace TrustPilotAnagram
+namespace Anagram
 {
     /// <summary>
-    /// Daniel Ortiz
-    /// DOrtiz1011@gmail.com
-    /// 08-Jan-2016
-    /// 
-    /// Anagram programming challege for TrustPilot
-    /// http://followthewhiterabbit.trustpilot.com/cs/step3.html
     /// </summary>
-    public class TrustPilotAnagram
+    public class Anagram
     {
         #region Members
 
@@ -230,7 +224,7 @@ namespace TrustPilotAnagram
 
                         if (totalLength == lengthWithoutSpaces)
                         {
-                            lengthTuplesList.Add(new Tuple<int, int, int> (first, second, third));
+                            lengthTuplesList.Add(new Tuple<int, int, int>(first, second, third));
                         }
                     }
                 }
