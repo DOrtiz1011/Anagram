@@ -23,11 +23,6 @@ namespace Anagram
         #region Properties
 
         /// <summary>
-        /// List of all the words from the input file that meet all the restrictions based on the hint phrase
-        /// </summary>
-        private List<string> FilteredWordList { get; set; }
-
-        /// <summary>
         /// Anagram of the secret phrase used to filter the list of words.
         /// </summary>
         public string HintPhrase { get; private set; }
@@ -80,6 +75,9 @@ namespace Anagram
         /// </summary>
         private Dictionary<char, int> CharCountFromHintDictionary { get; set; }
 
+
+        private Dictionary<int, List<string>> WordLengthsDictionary { get; set; }
+
         #endregion Properties
 
         #region Methods
@@ -114,7 +112,6 @@ namespace Anagram
             InputFile = inputFile.Trim();
             NumberOfPhraseComparisons = 0;
             MD5Hash = MD5.Create();
-            FilteredWordList = new List<string>();
 
             StartDateTime = DateTime.Now;
             Console.WriteLine("Started search:\t\t" + StartDateTime.Value.ToString());
@@ -129,8 +126,8 @@ namespace Anagram
             MD5Hash.Dispose();
             CharCountFromHintDictionary.Clear();
             CharCountFromHintDictionary = null;
-            FilteredWordList.Clear();
-            FilteredWordList = null;
+            WordLengthsDictionary.Clear();
+            WordLengthsDictionary = null;
 
             Console.WriteLine("Ended search:\t\t" + EndDateTime.Value.ToString());
             Console.WriteLine("Time elapsed:\t\t" + SearchTimeSpan.ToString());
@@ -154,48 +151,41 @@ namespace Anagram
         private void ReadInputFile()
         {
             var start = DateTime.Now;
+            var numFilteredWords = 0;
+
+            WordLengthsDictionary = new Dictionary<int, List<string>>();
 
             foreach (var word in File.ReadAllLines(InputFile).ToList())
             {
-                if (!ExcludeWord(word.Trim().ToLower()))
+                var wordLower = word.Trim().ToLower();
+
+                if (!ExcludeWord(wordLower))
                 {
-                    FilteredWordList.Add(word.ToLower());
+                    if (WordLengthsDictionary.ContainsKey(wordLower.Length))
+                    {
+                        var lengthList = WordLengthsDictionary[wordLower.Length];
+
+                        if (!lengthList.Contains(wordLower))
+                        {
+                            lengthList.Add(wordLower);
+                        }
+                    }
+                    else
+                    {
+                        var lengthList = new List<string>();
+                        lengthList.Add(wordLower);
+
+                        WordLengthsDictionary.Add(wordLower.Length, lengthList);
+                    }
+
+                    numFilteredWords++;
                 }
             }
 
             // Sort the filtered words first by length then alphabetically. This will make the search alot faster later.
-            FilteredWordList = FilteredWordList.OrderByDescending(x => x.Length).ThenBy(x => x).Distinct().ToList();
 
             Console.WriteLine("Word filtering time:\t{0}", (DateTime.Now - start).ToString());
-            Console.WriteLine("Words filtered:\t\t{0}", FilteredWordList.Count);
-        }
-
-        /// <summary>
-        /// Creates a hash (Dictionary) using the word length as a key and a List<string> as the value.
-        /// This list has all filtered words that are of the length of the key
-        /// </summary>
-        /// <returns></returns>
-        private Dictionary<int, List<string>> CreateWordLengthsDictionary()
-        {
-            var wordLengthsDictionary = new Dictionary<int, List<string>>();
-
-            foreach (var word in FilteredWordList)
-            {
-                if (wordLengthsDictionary.ContainsKey(word.Length))
-                {
-                    var lengthList = wordLengthsDictionary[word.Length];
-                    lengthList.Add(word);
-                }
-                else
-                {
-                    var lengthList = new List<string>();
-                    lengthList.Add(word);
-
-                    wordLengthsDictionary.Add(word.Length, lengthList);
-                }
-            }
-
-            return wordLengthsDictionary;
+            Console.WriteLine("Words filtered:\t\t{0}", numFilteredWords);
         }
 
         /// <summary>
@@ -207,37 +197,38 @@ namespace Anagram
             // must be three words because the spaces count in the MD5 hash key
             // words cannot have spaces
             // assumes that no leading or trail white space exists
-            var wordLengthsDictionary = CreateWordLengthsDictionary();
             var lengthWithoutSpaces = HintPhrase.Length - CharCountFromHintDictionary[' '];
 
             // Get three word sets that have combined lengthWithoutSpaces chars. The ints reprent indexes in the wordLengthsDictionary.
             var lengthTuplesList = new List<Tuple<int, int, int>>();
 
             // create tuples of words whos lengths add up to the length of the hint phrase minus the spaces
-            for (var first = 0; first < wordLengthsDictionary.Count; first++)
+            for (var first = 0; first < WordLengthsDictionary.Count; first++)
             {
-                for (var second = 0; second < wordLengthsDictionary.Count; second++)
+                for (var second = 0; second < WordLengthsDictionary.Count; second++)
                 {
-                    for (var third = 0; third < wordLengthsDictionary.Count; third++)
+                    for (var third = 0; third < WordLengthsDictionary.Count; third++)
                     {
-                        var totalLength = wordLengthsDictionary.ElementAt(first).Key + wordLengthsDictionary.ElementAt(second).Key + wordLengthsDictionary.ElementAt(third).Key;
+                        var totalLength = WordLengthsDictionary.ElementAt(first).Key + WordLengthsDictionary.ElementAt(second).Key + WordLengthsDictionary.ElementAt(third).Key;
 
                         if (totalLength == lengthWithoutSpaces)
                         {
-                            lengthTuplesList.Add(new Tuple<int, int, int>(first, second, third));
+                            lengthTuplesList.Add(new Tuple<int, int, int>(WordLengthsDictionary.ElementAt(first).Key, WordLengthsDictionary.ElementAt(second).Key, WordLengthsDictionary.ElementAt(third).Key));
                         }
                     }
                 }
             }
+
+            lengthTuplesList = lengthTuplesList.OrderByDescending(x => x.Item1).OrderByDescending(x => x.Item2).OrderByDescending(x => x.Item3).ToList();
 
             var phrase = new StringBuilder(HintPhrase.Length);
 
             // use the tuple to make only phrases of length 20
             foreach (var tuple in lengthTuplesList)
             {
-                foreach (var word1 in wordLengthsDictionary.ElementAt(tuple.Item1).Value)
+                foreach (var word1 in WordLengthsDictionary[tuple.Item1])
                 {
-                    foreach (var word2 in wordLengthsDictionary.ElementAt(tuple.Item2).Value)
+                    foreach (var word2 in WordLengthsDictionary[tuple.Item2])
                     {
                         phrase.Clear().Append(word1).Append(" ").Append(word2);
 
@@ -245,7 +236,7 @@ namespace Anagram
                         // The sorting by length decending shows its benifit by excluding many two word phrases at this point.
                         if (!ExcludeWord(phrase.ToString()))
                         {
-                            foreach (var word3 in wordLengthsDictionary.ElementAt(tuple.Item3).Value)
+                            foreach (var word3 in WordLengthsDictionary[tuple.Item3])
                             {
                                 phrase.Clear().Append(word1).Append(" ").Append(word2).Append(" ").Append(word3);
 
