@@ -13,6 +13,8 @@ namespace Anagram
     {
         #region Members
 
+        //private AnagramGraph Anagram_Graph;
+
         /// <summary>
         /// MD5 object instance
         /// </summary>
@@ -21,6 +23,8 @@ namespace Anagram
         #endregion
 
         #region Properties
+
+        public string SecretPhrase { get; private set; }
 
         /// <summary>
         /// Anagram of the secret phrase used to filter the list of words.
@@ -91,6 +95,32 @@ namespace Anagram
         /// <returns></returns>
         public string FindSecretPhrase(string hintPhrase, string md5HashKeyOfSolution, string inputFile)
         {
+            Initialize(hintPhrase, md5HashKeyOfSolution, inputFile);
+            ReadInputFile();
+            SearchPhrases();
+            CleanUp();
+            PrintResult();
+
+            return SecretPhrase;
+        }
+
+        //public string FindSecretPhraseGraph(string hintPhrase, string md5HashKeyOfSolution, string inputFile)
+        //{
+        //    Initialize(hintPhrase, md5HashKeyOfSolution, inputFile);
+        //    ReadInputFileGraph();
+        //    SearchPhrasesGraph();
+        //    CleanUp();
+        //    PrintResult();
+        //    return SecretPhrase;
+        //}
+
+        private void SearchPhrasesGraph()
+        {
+
+        }
+
+        private void Initialize(string hintPhrase, string md5HashKeyOfSolution, string inputFile)
+        {
             if (string.IsNullOrEmpty(hintPhrase))
             {
                 throw new ArgumentNullException("hintPhrase", "hintPhrase is null or empty.");
@@ -106,43 +136,59 @@ namespace Anagram
                 throw new ArgumentNullException("inputFile", "inputFile is null or empty.");
             }
 
-            // Initialize
             HintPhrase = hintPhrase.Trim().ToLower();
             MD5HashKeyOfSolution = md5HashKeyOfSolution;
             InputFile = inputFile.Trim();
             NumberOfPhraseComparisons = 0;
             MD5Hash = MD5.Create();
+            CharCountFromHintDictionary = GetCharCountFromString(HintPhrase);
 
+            PrintStart();
+        }
+
+        private void PrintStart()
+        {
             StartDateTime = DateTime.Now;
             Console.WriteLine("Started search:\t\t" + StartDateTime.Value.ToString());
+        }
 
-            CharCountFromHintDictionary = GetCharCountFromString(HintPhrase);
-            ReadInputFile();
-            var secretPhrase = SearchPhrases();
-
-            EndDateTime = DateTime.Now;
-
-            // clean up
+        private void CleanUp()
+        {
+            PrintEnd();
             MD5Hash.Dispose();
-            CharCountFromHintDictionary.Clear();
-            CharCountFromHintDictionary = null;
-            WordLengthsDictionary.Clear();
-            WordLengthsDictionary = null;
+
+            if (CharCountFromHintDictionary != null)
+            {
+                CharCountFromHintDictionary.Clear();
+                CharCountFromHintDictionary = null;
+            }
+
+            if (WordLengthsDictionary != null)
+            {
+                WordLengthsDictionary.Clear();
+                WordLengthsDictionary = null;
+            }
+        }
+
+        private void PrintEnd()
+        {
+            EndDateTime = DateTime.Now;
 
             Console.WriteLine("Ended search:\t\t" + EndDateTime.Value.ToString());
             Console.WriteLine("Time elapsed:\t\t" + SearchTimeSpan.ToString());
             Console.WriteLine("Number of comparisons:\t" + NumberOfPhraseComparisons);
+        }
 
-            if (!string.IsNullOrEmpty(secretPhrase))
+        private void PrintResult()
+        {
+            if (!string.IsNullOrEmpty(SecretPhrase))
             {
-                Console.WriteLine("\nThe secret phrase is:\t{0}\n\n\n", secretPhrase);
+                Console.WriteLine("\nThe secret phrase is:\t{0}\n\n\n", SecretPhrase);
             }
             else
             {
                 Console.WriteLine("\nThe secret phrase was not found.\n\n\n");
             }
-
-            return secretPhrase;
         }
 
         /// <summary>
@@ -188,11 +234,32 @@ namespace Anagram
             Console.WriteLine("Words filtered:\t\t{0}", numFilteredWords);
         }
 
+        //private void ReadInputFileGraph()
+        // {
+        //    var start = DateTime.Now;
+        //    var numFilteredWords = 0;
+
+        //    Anagram_Graph = new AnagramGraph(HintPhrase);
+
+        //    foreach (var word in File.ReadAllLines(InputFile).ToList())
+        //    {
+        //        var wordLower = word.Trim().ToLower();
+
+        //        //if (!ExcludeWord(wordLower))
+        //        {
+        //            Anagram_Graph.AddNode(wordLower);
+        //        }
+        //    }
+
+        //    Console.WriteLine("Word filtering time:\t{0}", (DateTime.Now - start).ToString());
+        //    Console.WriteLine("Words filtered:\t\t{0}", numFilteredWords);
+        //}
+
         /// <summary>
         /// Compares three word phrases with the MD5 hash key of the secret phrase.
         /// </summary>
         /// <returns>The secret phrase or null if not found</returns>
-        private string SearchPhrases()
+        private void SearchPhrases()
         {
             // must be three words because the spaces count in the MD5 hash key
             // words cannot have spaces
@@ -242,15 +309,14 @@ namespace Anagram
 
                                 if (!ExcludePhrase(phrase.ToString()) && VerifyMd5Hash(phrase.ToString()))
                                 {
-                                    return phrase.ToString();
+                                    SecretPhrase = phrase.ToString();
+                                    return;
                                 }
                             }
                         }
                     }
                 }
             }
-
-            return null;
         }
 
         /// <summary>
