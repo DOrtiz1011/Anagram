@@ -8,8 +8,7 @@ namespace Anagram
         public int WordNumber { get; private set; }
         public Dictionary<string, GraphNode> AdjacencyHash { get; private set; }
         public GraphNode ParentGraphNode { get; private set; }
-        private bool foundSecretPhrase = false;
-
+        
         public GraphNode(string word, GraphNode parentGraphNode, int wordNumber)
         {
             Word = word;
@@ -20,15 +19,15 @@ namespace Anagram
 
         public void AddAdjacentNode(string word, AnagramUtilities anagramUtilities)
         {
-            if (!foundSecretPhrase && !AdjacencyHash.ContainsKey(word))
+            if (!AdjacencyHash.ContainsKey(word))
             {
                 var wordNumber   = WordNumber + 1;
                 var parentPhrase = GetParentPhrase(this);
                 var phrase       = string.Format("{0} {1}", parentPhrase, word).Trim();
 
-                if (!anagramUtilities.ExcludeByNumWords(phrase, wordNumber, out foundSecretPhrase))
+                if (!anagramUtilities.ExcludeByNumWords(phrase, wordNumber))
                 {
-                    var newNode = new GraphNode(word, this, wordNumber);//, parentPhrase);
+                    var newNode = new GraphNode(word, this, wordNumber);
                     anagramUtilities.NumNodes++;
                     AdjacencyHash.Add(newNode.Word, newNode);
                 }

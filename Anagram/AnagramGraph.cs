@@ -14,20 +14,15 @@ namespace Anagram
 
         private int NumWords { get; set; }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        //internal AnagramUtilities anagramUtilities { get; private set; }
-
         public AnagramGraph(int numWords, IEnumerable<string> distinctWords, AnagramUtilities anagramUtilities)
         {
             NumWords = numWords;
             DistinctWords = distinctWords;
             RootNode = new GraphNode(null, null, 0);
+            anagramUtilities.NumNodes++;
 
             anagramUtilities.AddNodesStartTime = DateTime.Now;
 
-            anagramUtilities.NumNodes++;
             AddNodes(RootNode, anagramUtilities);
 
             anagramUtilities.AddNodesEndTime = DateTime.Now;
@@ -40,6 +35,11 @@ namespace Anagram
                 foreach (var word in DistinctWords)
                 {
                     graphNode.AddAdjacentNode(word, anagramUtilities);
+
+                    if (!string.IsNullOrEmpty(anagramUtilities.SecretPhrase))
+                    {
+                        break;
+                    }
                 }
 
                 if (string.IsNullOrEmpty(anagramUtilities.SecretPhrase))
@@ -49,11 +49,6 @@ namespace Anagram
                         AddNodes(keyValuePair.Value, anagramUtilities);
                     }
                 }
-            }
-            else
-            {
-                int i = 1;
-                i++;
             }
         }
     }

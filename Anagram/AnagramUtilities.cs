@@ -168,11 +168,9 @@ namespace Anagram
             }
         }
 
-        public bool ExcludeByNumWords(string word, int wordNumber, out bool foundSecretPhrase)
+        public bool ExcludeByNumWords(string word, int wordNumber)
         {
             var exclude = false;
-
-            foundSecretPhrase = false;
 
             if (wordNumber == NumWords)
             {
@@ -180,7 +178,7 @@ namespace Anagram
 
                 if (!exclude)
                 {
-                    foundSecretPhrase = VerifyMd5Hash(word);
+                    VerifyMd5Hash(word);
                 }
             }
             else if (wordNumber != 1 && wordNumber < NumWords)
@@ -225,20 +223,26 @@ namespace Anagram
             return excludeWord;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="word"></param>
+        /// <returns></returns>
         private bool CheckLength(string word)
         {
-            var tooLong = true;
+            var valid            = false;
+            var numWordsInString = word.Count(x => x == ' ') + 1;
 
-            if (word.Contains(' '))
+            if (numWordsInString == NumWords)
             {
-                tooLong = word.Length <= HintPhrase.Length;
+                valid = word.Length == HintPhrase.Length;
             }
             else
             {
-                tooLong = word.Length <= SingleWordMaxLength;
+                valid = word.Length <= SingleWordMaxLength + ((numWordsInString - 1) * 2);
             }
 
-            return tooLong;
+            return valid;
         }
 
         /// <summary>
@@ -248,10 +252,10 @@ namespace Anagram
         /// <returns></returns>
         public bool ExcludePhrase(string phrase)
         {
-            var exclude = false;
+            var excludePhrase = false;
 
             // phrase must exactly match the length of the hint phrase
-            if (phrase.Length == HintPhrase.Length)
+            if (CheckLength(phrase))
             {
                 var wordCharCountDictionary = GetCharCountFromString(phrase);
 
@@ -260,17 +264,17 @@ namespace Anagram
                     if (!CharCountFromHintDictionary.ContainsKey(keyValuePair.Key) || CharCountFromHintDictionary[keyValuePair.Key] != keyValuePair.Value)
                     {
                         // if the hash table does have the char or the number of times the char appears is to large the word will be excluded.
-                        exclude = true;
+                        excludePhrase = true;
                         break;
                     }
                 }
             }
             else
             {
-                exclude = true;
+                excludePhrase = true;
             }
 
-            return exclude;
+            return excludePhrase;
         }
 
         /// <summary>
@@ -282,9 +286,9 @@ namespace Anagram
         private Dictionary<char, int> GetCharCountFromString(string stringToCount)
         {
             var countDictionary = new Dictionary<char, int>();
-            var ArrayList       = stringToCount.Trim().ToCharArray();
+            var characterArray  = stringToCount.Trim().ToCharArray();
 
-            foreach (var character in ArrayList)
+            foreach (var character in characterArray)
             {
                 if (countDictionary.ContainsKey(character))
                 {
@@ -315,8 +319,8 @@ namespace Anagram
             }
 
             // Sort the filtered words first by length then alphabetically. This will make the search alot faster later.
-            //DistinctWordList = DistinctWordList.OrderByDescending(x => x.Length).ThenBy(x => x).Distinct().ToList();
-            DistinctWordList = DistinctWordList.Distinct().ToList();
+            DistinctWordList = DistinctWordList.OrderByDescending(x => x.Length).ThenBy(x => x).Distinct().ToList();
+            //DistinctWordList = DistinctWordList.Distinct().ToList();
 
             DistinctListEndTime = DateTime.Now;
         }
@@ -383,7 +387,6 @@ namespace Anagram
             stringBuilder.AppendLine(string.Format("MD5 Comparisons:      {0:n0}", NumMD5HashKeyComparisons));
             stringBuilder.AppendLine();
             stringBuilder.AppendLine(SecretPhrase == null ? "Secret phrase was not found." : string.Format("Secret Phrase Phrase: {0}", SecretPhrase));
-            stringBuilder.AppendLine();
             stringBuilder.AppendLine();
 
             Console.WriteLine(stringBuilder.ToString());
