@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.IO;
 
 namespace Anagram
 {
@@ -25,10 +23,11 @@ namespace Anagram
         {
             NumWords = numWords;
             DistinctWords = distinctWords;
-            RootNode = new GraphNode(null, null, 0, null);
+            RootNode = new GraphNode(null, null, 0);
 
             anagramUtilities.AddNodesStartTime = DateTime.Now;
 
+            anagramUtilities.NumNodes++;
             AddNodes(RootNode, anagramUtilities);
 
             anagramUtilities.AddNodesEndTime = DateTime.Now;
@@ -50,6 +49,11 @@ namespace Anagram
                         AddNodes(keyValuePair.Value, anagramUtilities);
                     }
                 }
+            }
+            else
+            {
+                int i = 1;
+                i++;
             }
         }
     }

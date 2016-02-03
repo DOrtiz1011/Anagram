@@ -1,24 +1,21 @@
 ﻿using System.Collections.Generic;
-using System.Text;
 
 namespace Anagram
 {
     internal class GraphNode
     {
         public string Word { get; private set; }
-        //public string ParentPhrase { get; private set; }
         public int WordNumber { get; private set; }
         public Dictionary<string, GraphNode> AdjacencyHash { get; private set; }
         public GraphNode ParentGraphNode { get; private set; }
         private bool foundSecretPhrase = false;
 
-        public GraphNode(string word, GraphNode parentGraphNode, int wordNumber, string parentPhrase)
+        public GraphNode(string word, GraphNode parentGraphNode, int wordNumber)
         {
             Word = word;
             AdjacencyHash = new Dictionary<string, GraphNode>();
             ParentGraphNode = parentGraphNode;
             WordNumber = wordNumber;
-            //ParentPhrase = parentPhrase;
         }
 
         public void AddAdjacentNode(string word, AnagramUtilities anagramUtilities)
@@ -27,10 +24,11 @@ namespace Anagram
             {
                 var wordNumber   = WordNumber + 1;
                 var parentPhrase = GetParentPhrase(this);
+                var phrase       = string.Format("{0} {1}", parentPhrase, word).Trim();
 
-                if (!anagramUtilities.ExcludeByNumWords(string.Format("{0} {1}", parentPhrase, word), wordNumber, out foundSecretPhrase))
+                if (!anagramUtilities.ExcludeByNumWords(phrase, wordNumber, out foundSecretPhrase))
                 {
-                    var newNode = new GraphNode(word, this, wordNumber, parentPhrase);
+                    var newNode = new GraphNode(word, this, wordNumber);//, parentPhrase);
                     anagramUtilities.NumNodes++;
                     AdjacencyHash.Add(newNode.Word, newNode);
                 }

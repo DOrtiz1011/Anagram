@@ -26,6 +26,11 @@ namespace Anagram
         public string MD5HashKeyOfSolution { get; private set; }
 
         /// <summary>
+        /// Number of time the MD5 has was used in a comparison.
+        /// </summary>
+        public int NumMD5HashKeyComparisons { get; private set; }
+
+        /// <summary>
         /// String that will hold the secret phrase if it is found.
         /// </summary>
         public string SecretPhrase { get; private set; }
@@ -44,6 +49,11 @@ namespace Anagram
         /// Length of the hint phrase minus the spaces.
         /// </summary>
         public int LengthWithoutSpaces { get; private set; }
+
+        /// <summary>
+        /// The longest a single word can be in the solution.
+        /// </summary>
+        public int SingleWordMaxLength { get; private set; }
 
         /// <summary>
         /// Hash that uses the chars in the hint phrase as a key and the number of times that char appears as the value.
@@ -96,7 +106,7 @@ namespace Anagram
         private AnagramGraph anagramGraph { get; set; }
 
         /// <summary>
-        /// Total nodes added to the graph not including the root.
+        /// Total nodes added to the graph
         /// </summary>
         internal int NumNodes { get; set; }
 
@@ -126,8 +136,9 @@ namespace Anagram
             MD5HashKeyOfSolution = md5HashKeyOfSolution;
             InputFile = inputFile;
             CharCountFromHintDictionary = GetCharCountFromString(HintPhrase);
-            NumWords = CharCountFromHintDictionary[' '] + 1;
-            LengthWithoutSpaces = HintPhrase.Length - CharCountFromHintDictionary[' '];
+            NumWords = (CharCountFromHintDictionary.ContainsKey(' ') ? CharCountFromHintDictionary[' '] : 0) + 1;
+            LengthWithoutSpaces = HintPhrase.Length - (CharCountFromHintDictionary.ContainsKey(' ') ? CharCountFromHintDictionary[' '] : 0);
+            SingleWordMaxLength = HintPhrase.Length - (NumWords - 1) - (CharCountFromHintDictionary.ContainsKey(' ') ? CharCountFromHintDictionary[' '] : 0);
             MD5Hash = MD5.Create();
 
             MakeDistinctWordList();
@@ -174,6 +185,7 @@ namespace Anagram
             }
             else if (wordNumber != 1 && wordNumber < NumWords)
             {
+                // wordNumber != 1 => words have already be individually filtered so no need to do it again
                 exclude = ExcludeWord(word);
             }
 
@@ -190,7 +202,7 @@ namespace Anagram
             var excludeWord = false;
 
             // word must be shorter than or equal to the length of the hint phrase
-            if (word.Length <= LengthWithoutSpaces)
+            if (CheckLength(word))
             {
                 var wordCharCountDictionary = GetCharCountFromString(word);
 
@@ -211,6 +223,22 @@ namespace Anagram
             }
 
             return excludeWord;
+        }
+
+        private bool CheckLength(string word)
+        {
+            var tooLong = true;
+
+            if (word.Contains(' '))
+            {
+                tooLong = word.Length <= HintPhrase.Length;
+            }
+            else
+            {
+                tooLong = word.Length <= SingleWordMaxLength;
+            }
+
+            return tooLong;
         }
 
         /// <summary>
@@ -254,9 +282,9 @@ namespace Anagram
         private Dictionary<char, int> GetCharCountFromString(string stringToCount)
         {
             var countDictionary = new Dictionary<char, int>();
-            var charList = stringToCount.Trim().ToCharArray();
+            var ArrayList       = stringToCount.Trim().ToCharArray();
 
-            foreach (var character in charList)
+            foreach (var character in ArrayList)
             {
                 if (countDictionary.ContainsKey(character))
                 {
@@ -321,6 +349,8 @@ namespace Anagram
         {
             var found = false;
 
+            NumMD5HashKeyComparisons++;
+
             if (0 == StringComparer.OrdinalIgnoreCase.Compare(GetMd5Hash(input), MD5HashKeyOfSolution))
             {
                 SecretPhrase = input;
@@ -339,8 +369,9 @@ namespace Anagram
         {
             var stringBuilder = new StringBuilder();
 
-            stringBuilder.AppendLine(string.Format("Start Time:           {0}", StartTime));
-            stringBuilder.AppendLine(string.Format("End Time:             {0}", EndTime));
+            stringBuilder.AppendLine(string.Format("Hint Phrase:          {0}", HintPhrase));
+            stringBuilder.AppendLine(string.Format("MD5 Hash Key:         {0}", MD5HashKeyOfSolution));
+            stringBuilder.AppendLine();
             stringBuilder.AppendLine(string.Format("Total Time:           {0}", EndTime - StartTime));
             stringBuilder.AppendLine();
             stringBuilder.AppendLine(string.Format("Word Filter Time:     {0}", DistinctListEndTime - DistinctListStartTime));
@@ -349,7 +380,11 @@ namespace Anagram
             stringBuilder.AppendLine(string.Format("Node Adding Time:     {0}", AddNodesEndTime - AddNodesStartTime));
             stringBuilder.AppendLine(string.Format("Nodes Added:          {0:n0}", NumNodes));
             stringBuilder.AppendLine();
+            stringBuilder.AppendLine(string.Format("MD5 Comparisons:      {0:n0}", NumMD5HashKeyComparisons));
+            stringBuilder.AppendLine();
             stringBuilder.AppendLine(SecretPhrase == null ? "Secret phrase was not found." : string.Format("Secret Phrase Phrase: {0}", SecretPhrase));
+            stringBuilder.AppendLine();
+            stringBuilder.AppendLine();
 
             Console.WriteLine(stringBuilder.ToString());
         }
