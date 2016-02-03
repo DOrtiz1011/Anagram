@@ -44,7 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AnagramGraph.cs" />
-    <Compile Include="Exclude.cs" />
+    <Compile Include="AnagramUtilities.cs" />
     <Compile Include="GraphNode.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

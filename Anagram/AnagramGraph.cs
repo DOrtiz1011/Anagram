@@ -7,80 +7,47 @@ namespace Anagram
 {
     internal class AnagramGraph
     {
+        /// <summary>
+        /// The starting point of the graph. All of its properties will be null;
+        /// </summary>
         public GraphNode RootNode { get; private set; }
-        public string HintPhrase { get; private set; }
-        internal Exclude Excluder { get; private set; }
+
+        private IEnumerable<string> DistinctWords { get; set; }
+
+        private int NumWords { get; set; }
 
         /// <summary>
-        /// The MD5 hash key that represents the secret phrase. It is used to veryfy that the phrase was found.
+        /// 
         /// </summary>
-        public string MD5HashKeyOfSolution { get; private set; }
+        //internal AnagramUtilities anagramUtilities { get; private set; }
 
-        /// <summary>
-        /// Full or relative path to the input file. If it is just the file name then it assumes the current working directory.
-        /// </summary>
-        public string InputFile { get; private set; }
-
-        private List<string> DistinctWordList { get; set; }
-
-        public AnagramGraph(string hintPhrase, string md5HashKey, string inputFile)
+        public AnagramGraph(int numWords, IEnumerable<string> distinctWords, AnagramUtilities anagramUtilities)
         {
-            HintPhrase = hintPhrase;
-            MD5HashKeyOfSolution = md5HashKey;
-            InputFile = inputFile;
-            Excluder = new Exclude(HintPhrase, md5HashKey);
-            RootNode = new GraphNode(null, null, 0, /*NumWords,*/ null);
+            NumWords = numWords;
+            DistinctWords = distinctWords;
+            RootNode = new GraphNode(null, null, 0, null);
 
-            MakeDistinctWordList();
+            anagramUtilities.AddNodesStartTime = DateTime.Now;
 
-            var start = DateTime.Now;
-            Console.WriteLine("Node adding Start:\t{0}", start);
-            AddNodes(RootNode);
-            Console.WriteLine("Node adding time:\t{0}", (DateTime.Now - start).ToString());
+            AddNodes(RootNode, anagramUtilities);
+
+            anagramUtilities.AddNodesEndTime = DateTime.Now;
         }
 
-        private void MakeDistinctWordList()
+        public void AddNodes(GraphNode graphNode, AnagramUtilities anagramUtilities)
         {
-            var start = DateTime.Now;
-
-            DistinctWordList = new List<string>();
-
-            foreach (var word in File.ReadAllLines(InputFile).ToList())
+            if (graphNode.WordNumber <= NumWords && string.IsNullOrEmpty(anagramUtilities.SecretPhrase))
             {
-                var wordLower = word.Trim().ToLower();
-
-                if (!Excluder.ExcludeWord(wordLower))
+                foreach (var word in DistinctWords)
                 {
-                    DistinctWordList.Add(wordLower);
-                }
-            }
-
-            // Sort the filtered words first by length then alphabetically. This will make the search alot faster later.
-            DistinctWordList = DistinctWordList.OrderByDescending(x => x.Length).ThenBy(x => x).Distinct().ToList();
-
-            Console.WriteLine("Word filtering time:\t{0}", (DateTime.Now - start).ToString());
-            Console.WriteLine("Words filtered:\t\t{0}", DistinctWordList.Count);
-        }
-
-        public void AddNodes(GraphNode graphNode)
-        {
-            if (graphNode.WordNumber <= Excluder.NumWords)
-            {
-                foreach (var word in DistinctWordList)
-                {
-                    graphNode.AddAdjacentNode(word, Excluder);
-
-                    if (!string.IsNullOrEmpty(Excluder.SecretPhrase))
-                    {
-                        break;
-                    }
+                    graphNode.AddAdjacentNode(word, anagramUtilities);
                 }
 
-                if (string.IsNullOrEmpty(Excluder.SecretPhrase))
+                if (string.IsNullOrEmpty(anagramUtilities.SecretPhrase))
                 {
-                    foreach (var keyValuePair in graphNode.AdjacencyList)
+                    foreach (var keyValuePair in graphNode.AdjacencyHash)
                     {
-                        AddNodes(keyValuePair.Value);
+                        AddNodes(keyValuePair.Value, anagramUtilities);
                     }
                 }
             }

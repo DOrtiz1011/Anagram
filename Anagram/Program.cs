@@ -22,9 +22,9 @@ namespace Anagram
 
             //anagram.FindSecretPhrase("poultry outwits ants", "4624d200580677270a54ccff86b9610e", "wordlist_fail.txt");
 
-            var a = new AnagramGraph("poultry outwits ants", "4624d200580677270a54ccff86b9610e", "wordlist_original.txt");
+            var a = new AnagramUtilities("poultry outwits ants", "4624d200580677270a54ccff86b9610e", "wordlist_original.txt");
 
-            //var a = new AnagramGraph("a b c", "4624d200580677270a54ccff86b9610e", "test.txt");
+            //var a = new AnagramUtilities("a b c", "06f0760ec7f18687a7fbc0ddbf1b1722", "wordlist_original.txt");
 
             Console.ReadLine();
         }
