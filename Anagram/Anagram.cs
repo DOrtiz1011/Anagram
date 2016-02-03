@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Anagram
 {
-    public class AnagramUtilities : IDisposable
+    public class Anagram : IDisposable
     {
         #region Fields
         
@@ -81,12 +81,12 @@ namespace Anagram
         public DateTime? DistinctListEndTime { get; set; }
 
         /// <summary>
-        /// Start time of adding nodes to the graph.
+        /// Start time of adding nodes to the tree.
         /// </summary>
         public DateTime? AddNodesStartTime { get; set; }
 
         /// <summary>
-        /// End time of adding noded to the graph
+        /// End time of adding noded to the tree
         /// </summary>
         public DateTime? AddNodesEndTime { get; set; }
 
@@ -101,18 +101,18 @@ namespace Anagram
         private List<string> DistinctWordList { get; set; }
 
         /// <summary>
-        /// Graph used to find the secret phrase.
+        /// Tree used to find the secret phrase.
         /// </summary>
-        private AnagramGraph anagramGraph { get; set; }
+        private Tree SearchTree { get; set; }
 
         /// <summary>
-        /// Total nodes added to the graph
+        /// Total nodes added to the tree
         /// </summary>
         internal int NumNodes { get; set; }
 
         #endregion Properties
 
-        public AnagramUtilities(string hintPhrase, string md5HashKeyOfSolution, string inputFile)
+        public Anagram(string hintPhrase, string md5HashKeyOfSolution, string inputFile)
         {
             StartTime = DateTime.Now;
 
@@ -143,7 +143,7 @@ namespace Anagram
 
             MakeDistinctWordList();
 
-            anagramGraph = new AnagramGraph(NumWords, DistinctWordList, this);
+            SearchTree = new Tree(NumWords, DistinctWordList, this);
 
             EndTime = DateTime.Now;
 

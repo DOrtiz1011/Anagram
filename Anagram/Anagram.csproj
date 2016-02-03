@@ -43,9 +43,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AnagramGraph.cs" />
-    <Compile Include="AnagramUtilities.cs" />
-    <Compile Include="GraphNode.cs" />
+    <Compile Include="Tree.cs" />
+    <Compile Include="Anagram.cs" />
+    <Compile Include="Node.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -53,7 +53,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="wordlist_original.txt">
+    <Content Include="wordlist.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
