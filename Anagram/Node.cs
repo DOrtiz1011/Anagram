@@ -1,4 +1,6 @@
-﻿namespace Anagram
+﻿using System.Text;
+
+namespace Anagram
 {
     internal class Node
     {
@@ -15,28 +17,32 @@
 
         public Node AddAdjacentNode(string word, Anagram anagram)
         {
-            var newNode      = default(Node);
-            var wordNumber   = WordNumber + 1;
-            var parentPhrase = GetParentPhrase(this);
-            var phrase       = string.Format("{0} {1}", parentPhrase, word).Trim();
+            var newNode       = default(Node);
+            var wordNumber    = WordNumber + 1;
+            var stringBuilder = new StringBuilder(anagram.HintPhrase.Length);
+
+            GetParentPhrase(this, stringBuilder);
+            var phrase = stringBuilder.Append(word).ToString().TrimEnd();
 
             if (!anagram.ExcludeByNumWords(phrase, wordNumber))
             {
-                newNode = new Node(word, this, wordNumber);
                 anagram.NumNodes++;
+                newNode = new Node(word, this, wordNumber);
             }
 
             return newNode;
         }
 
-        public string GetParentPhrase(Node node)
+        public void GetParentPhrase(Node node, StringBuilder stringBuilder)
         {
-            if (node.ParentNode == null || node.ParentNode.Word == null)
+            if (node.ParentNode == null || string.IsNullOrEmpty(node.ParentNode.Word))
             {
-                return node.Word;
+                stringBuilder.Append(node.Word).Append(" ");
             }
-
-            return string.Format("{0} {1}", GetParentPhrase(node.ParentNode), node.Word);
+            else
+            {
+                GetParentPhrase(node.ParentNode, stringBuilder.Append(node.Word).Append(" "));
+            }
         }
     }
 }
