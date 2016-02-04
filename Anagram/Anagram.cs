@@ -35,6 +35,8 @@ namespace Anagram
         /// </summary>
         public string SecretPhrase { get; private set; }
 
+        public bool SecretPhraseFound { get; private set; }
+
         /// <summary>
         /// Anagram of the secret phrase used to filter the list of words.
         /// </summary>
@@ -356,19 +358,15 @@ namespace Anagram
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        private bool VerifyMd5Hash(string input)
+        private void VerifyMd5Hash(string input)
         {
-            var found = false;
-
             NumMD5HashKeyComparisons++;
 
             if (0 == StringComparer.OrdinalIgnoreCase.Compare(GetMd5Hash(input), MD5HashKeyOfSolution))
             {
                 SecretPhrase = input;
-                found = true;
+                SecretPhraseFound = true;
             }
-
-            return found;
         }
 
         public void Dispose()
@@ -393,7 +391,7 @@ namespace Anagram
             stringBuilder.AppendLine();
             stringBuilder.AppendLine(string.Format("MD5 Comparisons:      {0:n0}", NumMD5HashKeyComparisons));
             stringBuilder.AppendLine();
-            stringBuilder.AppendLine(SecretPhrase == null ? "Secret phrase was not found." : string.Format("Secret Phrase Phrase: {0}", SecretPhrase));
+            stringBuilder.AppendLine(SecretPhraseFound ? string.Format("Secret Phrase:        {0}", SecretPhrase) : "Secret phrase was not found.");
             stringBuilder.AppendLine();
 
             Console.WriteLine(stringBuilder.ToString());
