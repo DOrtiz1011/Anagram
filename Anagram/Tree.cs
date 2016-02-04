@@ -22,13 +22,13 @@ namespace Anagram
             DistinctWords = distinctWords;
             _Anagram = anagram;
             RootNode = new Node(null, null, 0);
-            anagram.NumNodes++;
+            _Anagram.NumNodes++;
 
-            anagram.AddNodesStartTime = DateTime.Now;
+            _Anagram.AddNodesStartTime = DateTime.Now;
 
             AddNodes(RootNode);
 
-            anagram.AddNodesEndTime = DateTime.Now;
+            _Anagram.AddNodesEndTime = DateTime.Now;
         }
 
         public void AddNodes(Node node)
