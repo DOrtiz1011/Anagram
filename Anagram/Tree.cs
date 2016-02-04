@@ -14,36 +14,39 @@ namespace Anagram
 
         private int NumWords { get; set; }
 
-        public Tree(int numWords, IEnumerable<string> distinctWords, Anagram anagramUtilities)
+        private Anagram _Anagram { get; set; }
+
+        public Tree(int numWords, IEnumerable<string> distinctWords, Anagram anagram)
         {
             NumWords = numWords;
             DistinctWords = distinctWords;
+            _Anagram = anagram;
             RootNode = new Node(null, null, 0);
-            anagramUtilities.NumNodes++;
+            anagram.NumNodes++;
 
-            anagramUtilities.AddNodesStartTime = DateTime.Now;
+            anagram.AddNodesStartTime = DateTime.Now;
 
-            AddNodes(RootNode, anagramUtilities);
+            AddNodes(RootNode);
 
-            anagramUtilities.AddNodesEndTime = DateTime.Now;
+            anagram.AddNodesEndTime = DateTime.Now;
         }
 
-        public void AddNodes(Node node, Anagram anagramUtilities)
+        public void AddNodes(Node node)
         {
-            if (node.WordNumber <= NumWords && string.IsNullOrEmpty(anagramUtilities.SecretPhrase))
+            if (node.WordNumber <= NumWords && string.IsNullOrEmpty(_Anagram.SecretPhrase))
             {
                 foreach (var word in DistinctWords)
                 {
-                    var newNode = node.AddAdjacentNode(word, anagramUtilities);
+                    var newNode = node.AddAdjacentNode(word, _Anagram);
 
-                    if (!string.IsNullOrEmpty(anagramUtilities.SecretPhrase))
+                    if (!string.IsNullOrEmpty(_Anagram.SecretPhrase))
                     {
                         break;
                     }
 
                     if (newNode != null)
                     {
-                        AddNodes(newNode, anagramUtilities);
+                        AddNodes(newNode);
                     }
                 }
             }

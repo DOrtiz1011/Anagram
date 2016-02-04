@@ -56,6 +56,11 @@ namespace Anagram
         public int SingleWordMaxLength { get; private set; }
 
         /// <summary>
+        /// Length of the longest word in the distinct list
+        /// </summary>
+        public int LongestWordLength { get; private set; }
+
+        /// <summary>
         /// Hash that uses the chars in the hint phrase as a key and the number of times that char appears as the value.
         /// </summary>
         private Dictionary<char, int> CharCountFromHintDictionary { get; set; }
@@ -237,6 +242,10 @@ namespace Anagram
             {
                 valid = word.Length == HintPhrase.Length;
             }
+            else if (numWordsInString == 1)
+            {
+                valid = word.Length <= SingleWordMaxLength;
+            }
             else
             {
                 valid = word.Length <= SingleWordMaxLength + ((numWordsInString - 1) * 2);
@@ -318,10 +327,8 @@ namespace Anagram
                 }
             }
 
-            // Sort the filtered words first by length then alphabetically. This will make the search alot faster later.
-            DistinctWordList = DistinctWordList.OrderByDescending(x => x.Length).ThenBy(x => x).Distinct().ToList();
-            //DistinctWordList = DistinctWordList.Distinct().ToList();
-
+            DistinctWordList = DistinctWordList.Distinct().ToList();
+            LongestWordLength = DistinctWordList.Max(s => s.Length);
             DistinctListEndTime = DateTime.Now;
         }
 
