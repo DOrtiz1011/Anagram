@@ -230,7 +230,7 @@ namespace Anagram
         /// </summary>
         /// <param name="word"></param>
         /// <returns></returns>
-        private bool CheckLength(string word)
+        public bool CheckLength(string word)
         {
             var valid            = false;
             var numWordsInString = word.Count(x => x == ' ') + 1;
@@ -245,10 +245,20 @@ namespace Anagram
             }
             else
             {
-                valid = word.Length <= SingleWordMaxLength + ((numWordsInString - 1) * 2);
+                valid = word.Length <= GetMaxLength(numWordsInString);
             }
 
             return valid;
+        }
+
+        public int GetMaxLength(int numWordsInString)
+        {
+            return SingleWordMaxLength + ((numWordsInString - 1) * 2);
+        }
+
+        public bool IsPhraseTooLong(Node node, int nextWordLength)
+        {
+            return node.GetParentPhrase().Length + nextWordLength <= GetMaxLength(node.WordNumber + 1);
         }
 
         /// <summary>

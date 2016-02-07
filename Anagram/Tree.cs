@@ -10,7 +10,7 @@ namespace Anagram
         /// </summary>
         public Node RootNode { get; private set; }
 
-        private IEnumerable<string> DistinctWords { get; set; }
+        private Dictionary<int, List<string>> DistinctWords = new Dictionary<int, List<string>>();
 
         private int NumWords { get; set; }
 
@@ -19,12 +19,27 @@ namespace Anagram
         public Tree(int numWords, IEnumerable<string> distinctWords, Anagram anagram)
         {
             NumWords = numWords;
-            DistinctWords = distinctWords;
+            //DistinctWords = distinctWords;
             _Anagram = anagram;
             RootNode = new Node(null, null, 0);
             _Anagram.NumNodes++;
 
             _Anagram.AddNodesStartTime = DateTime.Now;
+
+            foreach (var s in distinctWords)
+            {
+                if (DistinctWords.ContainsKey(s.Length))
+                {
+                    DistinctWords[s.Length].Add(s);
+                }
+                else
+                {
+                    var list = new List<string>();
+                    list.Add(s);
+
+                    DistinctWords.Add(s.Length, list);
+                }
+            }
 
             AddNodes(RootNode);
 
@@ -35,13 +50,19 @@ namespace Anagram
         {
             if (!_Anagram.SecretPhraseFound && node != null && node.WordNumber <= NumWords)
             {
-                foreach (var word in DistinctWords)
+                foreach (var keyValuePair in DistinctWords)
                 {
-                    var newNode = node.AddAdjacentNode(word, _Anagram);
-
-                    if (!_Anagram.SecretPhraseFound && newNode != null)
+                    if (_Anagram.IsPhraseTooLong(node, keyValuePair.Key))
                     {
-                        AddNodes(newNode);
+                        foreach (var word in keyValuePair.Value)
+                        {
+                            var newNode = node.AddAdjacentNode(word, _Anagram);
+
+                            if (!_Anagram.SecretPhraseFound && newNode != null)
+                            {
+                                AddNodes(newNode);
+                            }
+                        }
                     }
                 }
             }

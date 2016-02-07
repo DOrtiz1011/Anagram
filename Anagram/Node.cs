@@ -2,7 +2,7 @@
 
 namespace Anagram
 {
-    internal class Node
+    public class Node
     {
         public string Word { get; private set; }
         public int WordNumber { get; private set; }
@@ -33,7 +33,14 @@ namespace Anagram
             return newNode;
         }
 
-        public void GetParentPhrase(Node node, StringBuilder stringBuilder)
+        public string GetParentPhrase()
+        {
+            var stringBuilder = new StringBuilder();
+            GetParentPhrase(this, stringBuilder);
+            return stringBuilder.ToString().Trim();
+        }
+
+        private void GetParentPhrase(Node node, StringBuilder stringBuilder)
         {
             if (node.ParentNode == null || string.IsNullOrEmpty(node.ParentNode.Word))
             {
