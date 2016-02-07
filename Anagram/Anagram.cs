@@ -105,7 +105,7 @@ namespace Anagram
         /// <summary>
         /// Tree used to find the secret phrase.
         /// </summary>
-        private Tree SearchTree { get; set; }
+        //private Tree SearchTree { get; set; }
 
         /// <summary>
         /// Total nodes added to the tree
@@ -145,7 +145,7 @@ namespace Anagram
 
             MakeDistinctWordList();
 
-            SearchTree = new Tree(NumWords, DistinctWordList, this);
+            new Tree(NumWords, DistinctWordList, this);
 
             EndTime = DateTime.Now;
 
@@ -324,7 +324,7 @@ namespace Anagram
                 }
             }
 
-            DistinctWordList = DistinctWordList.OrderByDescending(x => x.Length).Distinct().ToList();
+            DistinctWordList = DistinctWordList.OrderByDescending(x => x.Length).ThenBy(x => x).Distinct().ToList();
             DistinctListEndTime = DateTime.Now;
         }
 
@@ -371,21 +371,23 @@ namespace Anagram
         public void PrintStats()
         {
             var stringBuilder = new StringBuilder();
-
-            stringBuilder.AppendLine(string.Format("Hint Phrase:          {0}", HintPhrase));
-            stringBuilder.AppendLine(string.Format("MD5 Hash Key:         {0}", MD5HashKeyOfSolution));
+            stringBuilder.AppendLine(" =========================================================");
+            stringBuilder.AppendLine(string.Format(" | Hint Phrase:          {0}", HintPhrase));
+            stringBuilder.AppendLine(string.Format(" | MD5 Hash Key:         {0}", MD5HashKeyOfSolution));
+            stringBuilder.AppendLine(" |");
+            stringBuilder.AppendLine(string.Format(" | Total Time:           {0}", EndTime - StartTime));
+            stringBuilder.AppendLine(" |");
+            stringBuilder.AppendLine(string.Format(" | Word Filter Time:     {0}", DistinctListEndTime - DistinctListStartTime));
+            stringBuilder.AppendLine(string.Format(" | Words Filted:         {0:n0}", DistinctWordList.Count));
+            stringBuilder.AppendLine(" |");
+            stringBuilder.AppendLine(string.Format(" | Node Adding Time:     {0}", AddNodesEndTime - AddNodesStartTime));
+            stringBuilder.AppendLine(string.Format(" | Nodes Added:          {0:n0}", NumNodes));
+            stringBuilder.AppendLine(" |");
+            stringBuilder.AppendLine(string.Format(" | MD5 Comparisons:      {0:n0}", NumMD5HashKeyComparisons));
+            stringBuilder.AppendLine(" |");
+            stringBuilder.AppendLine(SecretPhraseFound ? string.Format(" | Secret Phrase:        {0}", SecretPhrase) : " | Secret phrase was not found.");
+            stringBuilder.AppendLine(" =========================================================");
             stringBuilder.AppendLine();
-            stringBuilder.AppendLine(string.Format("Total Time:           {0}", EndTime - StartTime));
-            stringBuilder.AppendLine();
-            stringBuilder.AppendLine(string.Format("Word Filter Time:     {0}", DistinctListEndTime - DistinctListStartTime));
-            stringBuilder.AppendLine(string.Format("Words Filted:         {0:n0}", DistinctWordList.Count));
-            stringBuilder.AppendLine();
-            stringBuilder.AppendLine(string.Format("Node Adding Time:     {0}", AddNodesEndTime - AddNodesStartTime));
-            stringBuilder.AppendLine(string.Format("Nodes Added:          {0:n0}", NumNodes));
-            stringBuilder.AppendLine();
-            stringBuilder.AppendLine(string.Format("MD5 Comparisons:      {0:n0}", NumMD5HashKeyComparisons));
-            stringBuilder.AppendLine();
-            stringBuilder.AppendLine(SecretPhraseFound ? string.Format("Secret Phrase:        {0}", SecretPhrase) : "Secret phrase was not found.");
             stringBuilder.AppendLine();
 
             Console.WriteLine(stringBuilder.ToString());
