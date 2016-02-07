@@ -33,18 +33,13 @@ namespace Anagram
 
         public void AddNodes(Node node)
         {
-            if (node.WordNumber <= NumWords && !_Anagram.SecretPhraseFound)
+            if (!_Anagram.SecretPhraseFound && node != null && node.WordNumber <= NumWords)
             {
                 foreach (var word in DistinctWords)
                 {
                     var newNode = node.AddAdjacentNode(word, _Anagram);
 
-                    if (_Anagram.SecretPhraseFound)
-                    {
-                        break;
-                    }
-
-                    if (newNode != null)
+                    if (!_Anagram.SecretPhraseFound && newNode != null)
                     {
                         AddNodes(newNode);
                     }
