@@ -22,7 +22,7 @@ namespace Anagram
             var stringBuilder = new StringBuilder(anagram.HintPhrase.Length);
 
             GetParentPhrase(this, stringBuilder);
-            var phrase = stringBuilder.Append(word).ToString().TrimEnd();
+            var phrase = stringBuilder.Append(word).ToString().Trim();
 
             if (!anagram.ExcludeByNumWords(phrase, wordNumber))
             {
