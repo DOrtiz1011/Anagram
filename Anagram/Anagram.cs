@@ -174,7 +174,11 @@ namespace Anagram
         {
             var exclude = false;
 
-            if (wordNumber == NumWords)
+            if (wordNumber > NumWords)
+            {
+                exclude = true;
+            }
+            else if (wordNumber == NumWords)
             {
                 exclude = ExcludePhrase(word);
 
@@ -302,9 +306,8 @@ namespace Anagram
         private Dictionary<char, int> GetCharCountFromString(string stringToCount)
         {
             var countDictionary = new Dictionary<char, int>();
-            var characterArray  = stringToCount.Trim().ToCharArray();
 
-            foreach (var character in characterArray)
+            foreach (var character in stringToCount.Trim().ToCharArray())
             {
                 if (countDictionary.ContainsKey(character))
                 {

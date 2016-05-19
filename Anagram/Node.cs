@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
+using System.Text;
 
 namespace Anagram
 {
@@ -7,7 +8,7 @@ namespace Anagram
         public string Word { get; private set; }
         public int WordNumber { get; private set; }
         public Node ParentNode { get; private set; }
-        
+
         public Node(string word, Node parentNode, int wordNumber)
         {
             Word = word;
@@ -17,12 +18,9 @@ namespace Anagram
 
         public Node AddAdjacentNode(string word, Anagram anagram)
         {
-            var newNode       = default(Node);
-            var wordNumber    = WordNumber + 1;
-            var stringBuilder = new StringBuilder(anagram.HintPhrase.Length);
-
-            GetParentPhrase(this, stringBuilder);
-            var phrase = stringBuilder.Append(word).ToString().Trim();
+            var newNode = default(Node);
+            var wordNumber = WordNumber + 1;
+            var phrase = string.Format("{0} {1}", GetParentPhrase(), word).Trim();
 
             if (!anagram.ExcludeByNumWords(phrase, wordNumber))
             {
@@ -36,20 +34,24 @@ namespace Anagram
         public string GetParentPhrase()
         {
             var stringBuilder = new StringBuilder();
-            GetParentPhrase(this, stringBuilder);
-            return stringBuilder.ToString().Trim();
-        }
+            var stack = new Stack<Node>();
+            var tempNode = ParentNode;
 
-        private void GetParentPhrase(Node node, StringBuilder stringBuilder)
-        {
-            if (node.ParentNode == null || string.IsNullOrEmpty(node.ParentNode.Word))
+            stack.Push(this);
+
+            while (tempNode != null && tempNode.WordNumber != 0)
             {
-                stringBuilder.Append(node.Word).Append(" ");
+                stack.Push(tempNode);
+                tempNode = tempNode.ParentNode;
             }
-            else
+
+            while (stack.Count > 0)
             {
-                GetParentPhrase(node.ParentNode, stringBuilder.Append(node.Word).Append(" "));
+                var word = stack.Pop().Word;
+                stringBuilder.Append(word).Append(" ");
             }
+
+            return stringBuilder.ToString().Trim();
         }
     }
 }
