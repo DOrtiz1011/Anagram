@@ -19,13 +19,21 @@ namespace Anagram
         public Tree(int numWords, IEnumerable<string> distinctWords, Anagram anagram)
         {
             NumWords = numWords;
-            //DistinctWords = distinctWords;
             _Anagram = anagram;
-            RootNode = new Node(null, null, 0);
-            _Anagram.NumNodes++;
 
             _Anagram.AddNodesStartTime = DateTime.Now;
+            RootNode = new Node(null, null, 0);
 
+            _Anagram.NumNodes++;
+            
+            CreateDistinctWordsDitionary(distinctWords);
+            AddNodes();
+
+            _Anagram.AddNodesEndTime = DateTime.Now;
+        }
+
+        private void CreateDistinctWordsDitionary(IEnumerable<string> distinctWords)
+        {
             foreach (var word in distinctWords)
             {
                 if (DistinctWords.ContainsKey(word.Length))
@@ -40,34 +48,6 @@ namespace Anagram
                     DistinctWords.Add(word.Length, list);
                 }
             }
-
-            AddNodes();
-
-            _Anagram.AddNodesEndTime = DateTime.Now;
-        }
-
-        public void AddNodes2(Node node)
-        {
-            if (_Anagram.SecretPhraseFound || node == null || node.WordNumber > NumWords)
-            {
-                return;
-            }
-
-            foreach (var keyValuePair in DistinctWords)
-            {
-                //if (_Anagram.IsPhraseTooLong(node, keyValuePair.Key))
-                {
-                    foreach (var word in keyValuePair.Value)
-                    {
-                        var newNode = node.AddAdjacentNode(word, _Anagram);
-
-                        if (!_Anagram.SecretPhraseFound && newNode != null)
-                        {
-                            AddNodes2(newNode);
-                        }
-                    }
-                }
-            }
         }
 
         private void AddNodes()
@@ -77,31 +57,28 @@ namespace Anagram
 
             while (queue.Count > 0)
             {
-                var node = queue.Dequeue();
+                var currentNode = queue.Dequeue();
 
-                if (node.WordNumber < _Anagram.NumWords)
+                foreach (var keyValuePair in DistinctWords)
                 {
-                    foreach (var keyValuePair in DistinctWords)
+                    var nextWordLength = keyValuePair.Key;
+
+                    if (_Anagram.CheckPhraseLength(currentNode, nextWordLength))
                     {
-                        if (_Anagram.IsPhraseTooLong(node, keyValuePair.Key))
+                        var wordList = keyValuePair.Value;   // all words of length nextWordLength
+
+                        foreach (var word in wordList)
                         {
-                            foreach (var word in keyValuePair.Value)
+                            var newNode = currentNode.AddAdjacentNode(word, _Anagram);
+
+                            if (!_Anagram.SecretPhraseFound && newNode != null && newNode.WordNumber < _Anagram.NumWords)
                             {
-                                var newNode = node.AddAdjacentNode(word, _Anagram);
-
-                                if (!_Anagram.SecretPhraseFound && newNode != null)
-                                {
-                                    queue.Enqueue(newNode);
-                                }
-                                else if (_Anagram.SecretPhraseFound)
-                                {
-                                    return;
-                                }
+                                queue.Enqueue(newNode);
                             }
-                        }
-                        else
-                        {
-
+                            else if (_Anagram.SecretPhraseFound)
+                            {
+                                return;
+                            }
                         }
                     }
                 }

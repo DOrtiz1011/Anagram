@@ -19,13 +19,13 @@ namespace Anagram
         public Node AddAdjacentNode(string word, Anagram anagram)
         {
             var newNode = default(Node);
-            var wordNumber = WordNumber + 1;
+            var newWordNumber = WordNumber + 1;
             var phrase = string.Format("{0} {1}", GetParentPhrase(), word).Trim();
 
-            if (!anagram.ExcludeByNumWords(phrase, wordNumber))
+            if (!anagram.ExcludeByNumWords(phrase, newWordNumber))
             {
                 anagram.NumNodes++;
-                newNode = new Node(word, this, wordNumber);
+                newNode = new Node(word, this, newWordNumber);
             }
 
             return newNode;
@@ -34,21 +34,25 @@ namespace Anagram
         public string GetParentPhrase()
         {
             var stringBuilder = new StringBuilder();
-            var stack = new Stack<Node>();
+            var stack = new Stack<string>();
             var tempNode = ParentNode;
 
-            stack.Push(this);
+            stack.Push(Word);
 
             while (tempNode != null && tempNode.WordNumber != 0)
             {
-                stack.Push(tempNode);
+                stack.Push(tempNode.Word);
                 tempNode = tempNode.ParentNode;
             }
 
             while (stack.Count > 0)
             {
-                var word = stack.Pop().Word;
-                stringBuilder.Append(word).Append(" ");
+                stringBuilder.Append(stack.Pop());
+
+                if (stack.Count > 0)
+                {
+                    stringBuilder.Append(" ");
+                }
             }
 
             return stringBuilder.ToString().Trim();

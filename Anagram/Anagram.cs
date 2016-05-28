@@ -60,7 +60,7 @@ namespace Anagram
         /// <summary>
         /// Hash that uses the chars in the hint phrase as a key and the number of times that char appears as the value.
         /// </summary>
-        private Dictionary<char, int> CharCountFromHintDictionary { get; set; }
+        private Dictionary<char, int> CharCountFromHint { get; set; }
 
         /// <summary>
         /// Start time of the entire process.
@@ -114,7 +114,7 @@ namespace Anagram
 
         #endregion Properties
 
-        public Anagram(string hintPhrase, string md5HashKeyOfSolution, string inputFile)
+        public bool FindSecrethPhrase(string hintPhrase, string md5HashKeyOfSolution, string inputFile)
         {
             StartTime = DateTime.Now;
 
@@ -137,13 +137,8 @@ namespace Anagram
             HintPhrase = hintPhrase;
             MD5HashKeyOfSolution = md5HashKeyOfSolution;
             InputFile = inputFile;
-            CharCountFromHintDictionary = GetCharCountFromString(HintPhrase);
-            NumWords = (CharCountFromHintDictionary.ContainsKey(' ') ? CharCountFromHintDictionary[' '] : 0) + 1;
-            LengthWithoutSpaces = HintPhrase.Length - (CharCountFromHintDictionary.ContainsKey(' ') ? CharCountFromHintDictionary[' '] : 0);
-            SingleWordMaxLength = HintPhrase.Length - (NumWords - 1) - (CharCountFromHintDictionary.ContainsKey(' ') ? CharCountFromHintDictionary[' '] : 0);
-            MD5Hash = MD5.Create();
 
-            MakeDistinctWordList();
+            Initialize();
 
             new Tree(NumWords, DistinctWordList, this);
 
@@ -151,6 +146,21 @@ namespace Anagram
 
             PrintStats();
             CleanUp();
+
+            return SecretPhraseFound;
+        }
+
+        private void Initialize()
+        {
+            CharCountFromHint = GetCharCountFromString(HintPhrase);
+            NumWords = (CharCountFromHint.ContainsKey(' ') ? CharCountFromHint[' '] : 0) + 1;
+            LengthWithoutSpaces = HintPhrase.Length - (CharCountFromHint.ContainsKey(' ') ? CharCountFromHint[' '] : 0);
+            SingleWordMaxLength = HintPhrase.Length - (NumWords - 1) - (CharCountFromHint.ContainsKey(' ') ? CharCountFromHint[' '] : 0);
+            MD5Hash = MD5.Create();
+            SecretPhrase = null;
+            SecretPhraseFound = false;
+
+            MakeDistinctWordList();
         }
 
         private void CleanUp()
@@ -163,10 +173,10 @@ namespace Anagram
                 DistinctWordList = null;
             }
 
-            if (CharCountFromHintDictionary != null)
+            if (CharCountFromHint != null)
             {
-                CharCountFromHintDictionary.Clear();
-                CharCountFromHintDictionary = null;
+                CharCountFromHint.Clear();
+                CharCountFromHint = null;
             }
         }
 
@@ -180,7 +190,7 @@ namespace Anagram
             }
             else if (wordNumber == NumWords)
             {
-                exclude = ExcludePhrase(word);
+                exclude = IsAnagram(word);
 
                 if (!exclude)
                 {
@@ -190,7 +200,7 @@ namespace Anagram
             else if (wordNumber != 1 && wordNumber < NumWords)
             {
                 // wordNumber != 1 => words have already be individually filtered so no need to do it again
-                exclude = ExcludeWord(word);
+                exclude = IsWordValid(word);
             }
 
             return exclude;
@@ -201,9 +211,9 @@ namespace Anagram
         /// </summary>
         /// <param name="word"></param>
         /// <returns></returns>
-        public bool ExcludeWord(string word)
+        public bool IsWordValid(string word)
         {
-            var excludeWord = false;
+            var isWordValid = false;
 
             // word must be shorter than or equal to the length of the hint phrase
             if (CheckLength(word))
@@ -212,10 +222,10 @@ namespace Anagram
 
                 foreach (var keyValuePair in wordCharCountDictionary)
                 {
-                    if (!CharCountFromHintDictionary.ContainsKey(keyValuePair.Key) || CharCountFromHintDictionary[keyValuePair.Key] < keyValuePair.Value)
+                    if (!CharCountFromHint.ContainsKey(keyValuePair.Key) || CharCountFromHint[keyValuePair.Key] < keyValuePair.Value)
                     {
                         // if the hash table does have the char or the number of times the char appears is to large the word will be excluded.
-                        excludeWord = true;
+                        isWordValid = true;
                         break;
                     }
                 }
@@ -223,10 +233,10 @@ namespace Anagram
             else
             {
                 // word is too long
-                excludeWord = true;
+                isWordValid = true;
             }
 
-            return excludeWord;
+            return isWordValid;
         }
 
         /// <summary>
@@ -260,7 +270,7 @@ namespace Anagram
             return SingleWordMaxLength + ((numWordsInString - 1) * 2);
         }
 
-        public bool IsPhraseTooLong(Node node, int nextWordLength)
+        public bool CheckPhraseLength(Node node, int nextWordLength)
         {
             return node.GetParentPhrase().Length + nextWordLength <= GetMaxLength(node.WordNumber + 1);
         }
@@ -270,31 +280,31 @@ namespace Anagram
         /// </summary>
         /// <param name="phrase"></param>
         /// <returns></returns>
-        public bool ExcludePhrase(string phrase)
+        public bool IsAnagram(string phrase)
         {
-            var excludePhrase = false;
+            var isAnagram = false;
 
             // phrase must exactly match the length of the hint phrase
             if (CheckLength(phrase))
             {
-                var wordCharCountDictionary = GetCharCountFromString(phrase);
+                var wordCharCount = GetCharCountFromString(phrase);
 
-                foreach (var keyValuePair in wordCharCountDictionary)
+                foreach (var keyValuePair in wordCharCount)
                 {
-                    if (!CharCountFromHintDictionary.ContainsKey(keyValuePair.Key) || CharCountFromHintDictionary[keyValuePair.Key] != keyValuePair.Value)
+                    if (!CharCountFromHint.ContainsKey(keyValuePair.Key) || CharCountFromHint[keyValuePair.Key] != keyValuePair.Value)
                     {
                         // if the hash table does have the char or the number of times the char appears is to large the word will be excluded.
-                        excludePhrase = true;
+                        isAnagram = true;
                         break;
                     }
                 }
             }
             else
             {
-                excludePhrase = true;
+                isAnagram = true;
             }
 
-            return excludePhrase;
+            return isAnagram;
         }
 
         /// <summary>
@@ -331,7 +341,7 @@ namespace Anagram
             {
                 var wordLower = word.Trim().ToLower();
 
-                if (!ExcludeWord(wordLower))
+                if (!IsWordValid(wordLower))
                 {
                     DistinctWordList.Add(wordLower);
                 }
