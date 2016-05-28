@@ -8,7 +8,7 @@ namespace Anagram
         /// <summary>
         /// The starting point of the tree. All of its properties will be null;
         /// </summary>
-        public Node RootNode { get; private set; }
+        private Node RootNode { get; set; }
 
         private Dictionary<int, List<string>> DistinctWords = new Dictionary<int, List<string>>();
 
@@ -16,7 +16,7 @@ namespace Anagram
 
         private Anagram _Anagram { get; set; }
 
-        public Tree(int numWords, IEnumerable<string> distinctWords, Anagram anagram)
+        public void TreeSearch(int numWords, IEnumerable<string> distinctWords, Anagram anagram)
         {
             NumWords = numWords;
             _Anagram = anagram;
@@ -25,7 +25,7 @@ namespace Anagram
             RootNode = new Node(null, null, 0);
 
             _Anagram.NumNodes++;
-            
+
             CreateDistinctWordsDitionary(distinctWords);
             AddNodes();
 

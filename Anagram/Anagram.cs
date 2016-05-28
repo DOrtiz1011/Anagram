@@ -48,11 +48,6 @@ namespace Anagram
         public int NumWords { get; private set; }
 
         /// <summary>
-        /// Length of the hint phrase minus the spaces.
-        /// </summary>
-        public int LengthWithoutSpaces { get; private set; }
-
-        /// <summary>
         /// The longest a single word can be in the solution.
         /// </summary>
         public int SingleWordMaxLength { get; private set; }
@@ -103,11 +98,6 @@ namespace Anagram
         private List<string> DistinctWordList { get; set; }
 
         /// <summary>
-        /// Tree used to find the secret phrase.
-        /// </summary>
-        //private Tree SearchTree { get; set; }
-
-        /// <summary>
         /// Total nodes added to the tree
         /// </summary>
         internal int NumNodes { get; set; }
@@ -133,14 +123,13 @@ namespace Anagram
                 throw new ArgumentNullException("inputFile", "inputFile is null or empty.");
             }
 
-            // initialize
             HintPhrase = hintPhrase;
             MD5HashKeyOfSolution = md5HashKeyOfSolution;
             InputFile = inputFile;
 
             Initialize();
 
-            new Tree(NumWords, DistinctWordList, this);
+            new Tree().TreeSearch(NumWords, DistinctWordList, this);            
 
             EndTime = DateTime.Now;
 
@@ -154,7 +143,6 @@ namespace Anagram
         {
             CharCountFromHint = GetCharCountFromString(HintPhrase);
             NumWords = (CharCountFromHint.ContainsKey(' ') ? CharCountFromHint[' '] : 0) + 1;
-            LengthWithoutSpaces = HintPhrase.Length - (CharCountFromHint.ContainsKey(' ') ? CharCountFromHint[' '] : 0);
             SingleWordMaxLength = HintPhrase.Length - (NumWords - 1) - (CharCountFromHint.ContainsKey(' ') ? CharCountFromHint[' '] : 0);
             MD5Hash = MD5.Create();
             SecretPhrase = null;
