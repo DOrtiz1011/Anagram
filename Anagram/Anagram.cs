@@ -99,6 +99,8 @@ namespace Anagram
 
         public Dictionary<int, List<string>> WordsByLength { get; private set; }
 
+        private int[] MaxPhraseLengths;
+
         /// <summary>
         /// Total nodes added to the tree
         /// </summary>
@@ -153,6 +155,7 @@ namespace Anagram
             SecretPhraseFound = false;
             NumNodes = 0;
             NumMD5HashKeyComparisons = 0;
+            GetMaxPhraseLengths();
         }
 
         private void CreateDistinctWordsDitionary()
@@ -172,6 +175,16 @@ namespace Anagram
 
                     WordsByLength.Add(word.Length, list);
                 }
+            }
+        }
+
+        private void GetMaxPhraseLengths()
+        {
+            MaxPhraseLengths = new int[NumWords + 1];
+
+            for (var i = 1; i < MaxPhraseLengths.Length; i++)
+            {
+                MaxPhraseLengths[i] = SingleWordMaxLength + ((i - 1) * 2);
             }
         }
 
@@ -195,6 +208,11 @@ namespace Anagram
             {
                 WordsByLength.Clear();
                 WordsByLength = null;
+            }
+
+            if (MaxPhraseLengths != null)
+            {
+                MaxPhraseLengths = null;
             }
         }
 
@@ -277,20 +295,15 @@ namespace Anagram
             }
             else
             {
-                valid = word.Length <= GetMaxLength(numWordsInString);
+                valid = word.Length <= MaxPhraseLengths[numWordsInString];
             }
 
             return valid;
         }
 
-        public int GetMaxLength(int numWordsInString)
-        {
-            return SingleWordMaxLength + ((numWordsInString - 1) * 2);
-        }
-
         public bool CheckPhraseLength(int parentPhraseLength, int nextWordLength, int wordNumber)
         {
-            return parentPhraseLength + nextWordLength <= GetMaxLength(wordNumber + 1);
+            return parentPhraseLength + nextWordLength <= MaxPhraseLengths[wordNumber + 1];
         }
 
         /// <summary>
