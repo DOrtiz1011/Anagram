@@ -335,7 +335,7 @@ namespace Anagram
                 }
             }
 
-            //DistinctWordList = DistinctWordList.OrderByDescending(x => x.Length).ThenBy(x => x).Distinct().ToList();
+            DistinctWordList = DistinctWordList.OrderByDescending(x => x.Length).ThenBy(x => x).Distinct().ToList();
             DistinctListEndTime = DateTime.Now;
         }
 
@@ -350,7 +350,7 @@ namespace Anagram
             var byteArray = MD5Hash.ComputeHash(Encoding.UTF8.GetBytes(input));
             var stringBuilder = new StringBuilder();
 
-            for (int i = 0; i < byteArray.Length; i++)
+            for (var i = 0; i < byteArray.Length; i++)
             {
                 stringBuilder.Append(byteArray[i].ToString("x2"));
             }
