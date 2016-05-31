@@ -97,6 +97,8 @@ namespace Anagram
         /// </summary>
         private List<string> DistinctWordList { get; set; }
 
+        public Dictionary<int, List<string>> WordsByLength { get; private set; }
+
         /// <summary>
         /// Total nodes added to the tree
         /// </summary>
@@ -128,6 +130,8 @@ namespace Anagram
             InputFile = inputFile;
 
             InitializeProperties();
+            MakeDistinctWordList();
+            CreateDistinctWordsDitionary();
 
             new Tree().TreeSearch(NumWords, DistinctWordList, this);
 
@@ -147,8 +151,28 @@ namespace Anagram
             MD5Hash = MD5.Create();
             SecretPhrase = null;
             SecretPhraseFound = false;
+            NumNodes = 0;
+            NumMD5HashKeyComparisons = 0;
+        }
 
-            MakeDistinctWordList();
+        private void CreateDistinctWordsDitionary()
+        {
+            WordsByLength = new Dictionary<int, List<string>>();
+
+            foreach (var word in DistinctWordList)
+            {
+                if (WordsByLength.ContainsKey(word.Length))
+                {
+                    WordsByLength[word.Length].Add(word);
+                }
+                else
+                {
+                    var list = new List<string>();
+                    list.Add(word);
+
+                    WordsByLength.Add(word.Length, list);
+                }
+            }
         }
 
         private void CleanUp()
@@ -165,6 +189,12 @@ namespace Anagram
             {
                 CharCountFromHint.Clear();
                 CharCountFromHint = null;
+            }
+
+            if (WordsByLength != null)
+            {
+                WordsByLength.Clear();
+                WordsByLength = null;
             }
         }
 
@@ -258,9 +288,9 @@ namespace Anagram
             return SingleWordMaxLength + ((numWordsInString - 1) * 2);
         }
 
-        public bool CheckPhraseLength(Node node, int nextWordLength)
+        public bool CheckPhraseLength(int parentPhraseLength, int nextWordLength, int wordNumber)
         {
-            return node.GetParentPhrase().Length + nextWordLength <= GetMaxLength(node.WordNumber + 1);
+            return parentPhraseLength + nextWordLength <= GetMaxLength(wordNumber + 1);
         }
 
         /// <summary>

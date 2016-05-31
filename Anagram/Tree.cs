@@ -10,8 +10,6 @@ namespace Anagram
         /// </summary>
         private Node RootNode { get; set; }
 
-        private Dictionary<int, List<string>> DistinctWords = new Dictionary<int, List<string>>();
-
         private int NumWords { get; set; }
 
         private Anagram _Anagram { get; set; }
@@ -22,32 +20,12 @@ namespace Anagram
             _Anagram = anagram;
 
             _Anagram.AddNodesStartTime = DateTime.Now;
-            RootNode = new Node(null, null, 0);
+            RootNode = new Node(null, null, 0, 0);
 
             _Anagram.NumNodes++;
-
-            CreateDistinctWordsDitionary(distinctWords);
             AddNodes();
 
             _Anagram.AddNodesEndTime = DateTime.Now;
-        }
-
-        private void CreateDistinctWordsDitionary(IEnumerable<string> distinctWords)
-        {
-            foreach (var word in distinctWords)
-            {
-                if (DistinctWords.ContainsKey(word.Length))
-                {
-                    DistinctWords[word.Length].Add(word);
-                }
-                else
-                {
-                    var list = new List<string>();
-                    list.Add(word);
-
-                    DistinctWords.Add(word.Length, list);
-                }
-            }
         }
 
         private void AddNodes()
@@ -59,13 +37,13 @@ namespace Anagram
             {
                 var currentNode = queue.Dequeue();
 
-                foreach (var keyValuePair in DistinctWords)
+                foreach (var wordsByLength in _Anagram.WordsByLength)
                 {
-                    var nextWordLength = keyValuePair.Key;
+                    var nextWordLength = wordsByLength.Key;
 
-                    if (_Anagram.CheckPhraseLength(currentNode, nextWordLength))
+                    if (_Anagram.CheckPhraseLength(currentNode.FullPhraseLength, nextWordLength, currentNode.WordNumber))
                     {
-                        var wordList = keyValuePair.Value;   // all words of length nextWordLength
+                        var wordList = wordsByLength.Value;   // all words of length nextWordLength
 
                         foreach (var word in wordList)
                         {
