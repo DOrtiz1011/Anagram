@@ -10,7 +10,7 @@ namespace Anagram
     public class Anagram : IDisposable
     {
         #region Fields
-        
+
         /// <summary>
         /// MD5 object instance
         /// </summary>
@@ -104,7 +104,7 @@ namespace Anagram
 
         #endregion Properties
 
-        public bool FindSecrethPhrase(string hintPhrase, string md5HashKeyOfSolution, string inputFile)
+        public bool FindSecretPhrase(string hintPhrase, string md5HashKeyOfSolution, string inputFile)
         {
             StartTime = DateTime.Now;
 
@@ -127,9 +127,9 @@ namespace Anagram
             MD5HashKeyOfSolution = md5HashKeyOfSolution;
             InputFile = inputFile;
 
-            Initialize();
+            InitializeProperties();
 
-            new Tree().TreeSearch(NumWords, DistinctWordList, this);            
+            new Tree().TreeSearch(NumWords, DistinctWordList, this);
 
             EndTime = DateTime.Now;
 
@@ -139,7 +139,7 @@ namespace Anagram
             return SecretPhraseFound;
         }
 
-        private void Initialize()
+        private void InitializeProperties()
         {
             CharCountFromHint = GetCharCountFromString(HintPhrase);
             NumWords = (CharCountFromHint.ContainsKey(' ') ? CharCountFromHint[' '] : 0) + 1;
@@ -154,7 +154,7 @@ namespace Anagram
         private void CleanUp()
         {
             Dispose();
-            
+
             if (DistinctWordList != null)
             {
                 DistinctWordList.Clear();
@@ -234,7 +234,7 @@ namespace Anagram
         /// <returns></returns>
         public bool CheckLength(string word)
         {
-            var valid            = false;
+            var valid = false;
             var numWordsInString = word.Count(x => x == ' ') + 1;
 
             if (numWordsInString == NumWords)
@@ -323,7 +323,7 @@ namespace Anagram
         private void MakeDistinctWordList()
         {
             DistinctListStartTime = DateTime.Now;
-            DistinctWordList      = new List<string>();
+            DistinctWordList = new List<string>();
 
             foreach (var word in File.ReadAllLines(InputFile).ToList())
             {
@@ -335,7 +335,7 @@ namespace Anagram
                 }
             }
 
-            DistinctWordList = DistinctWordList.OrderByDescending(x => x.Length).ThenBy(x => x).Distinct().ToList();
+            //DistinctWordList = DistinctWordList.OrderByDescending(x => x.Length).ThenBy(x => x).Distinct().ToList();
             DistinctListEndTime = DateTime.Now;
         }
 
@@ -382,6 +382,7 @@ namespace Anagram
         public void PrintStats()
         {
             var stringBuilder = new StringBuilder();
+
             stringBuilder.AppendLine(" =========================================================");
             stringBuilder.AppendLine(string.Format(" | Hint Phrase:          {0}", HintPhrase));
             stringBuilder.AppendLine(string.Format(" | MD5 Hash Key:         {0}", MD5HashKeyOfSolution));
@@ -398,8 +399,6 @@ namespace Anagram
             stringBuilder.AppendLine(" |");
             stringBuilder.AppendLine(SecretPhraseFound ? string.Format(" | Secret Phrase:        {0}", SecretPhrase) : " | Secret phrase was not found.");
             stringBuilder.AppendLine(" =========================================================");
-            stringBuilder.AppendLine();
-            stringBuilder.AppendLine();
 
             Console.WriteLine(stringBuilder.ToString());
         }

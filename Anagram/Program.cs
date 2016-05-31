@@ -16,7 +16,7 @@ namespace Anagram
 
             foreach (var testData in testDataList.Where(x => x.ExpectedResult))
             {
-                anagram.FindSecrethPhrase(testData.HintPhrase, testData.MD5HashKey, testData.InputFile);
+                anagram.FindSecretPhrase(testData.HintPhrase, testData.MD5HashKey, testData.InputFile);
 
                 if (anagram.SecretPhraseFound == testData.ExpectedResult && anagram.SecretPhrase == testData.ExpectedSecretPhrase)
                 {
