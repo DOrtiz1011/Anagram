@@ -139,7 +139,6 @@ namespace Anagram
 
             EndTime = DateTime.Now;
 
-            PrintStats();
             CleanUp();
 
             return SecretPhraseFound;
@@ -147,6 +146,29 @@ namespace Anagram
 
         private void InitializeProperties()
         {
+            if (DistinctWordList != null)
+            {
+                DistinctWordList.Clear();
+                DistinctWordList = null;
+            }
+
+            if (CharCountFromHint != null)
+            {
+                CharCountFromHint.Clear();
+                CharCountFromHint = null;
+            }
+
+            if (WordsByLength != null)
+            {
+                WordsByLength.Clear();
+                WordsByLength = null;
+            }
+
+            if (MaxPhraseLengths != null)
+            {
+                MaxPhraseLengths = null;
+            }
+
             CharCountFromHint = GetCharCountFromString(HintPhrase);
             NumWords = (CharCountFromHint.ContainsKey(' ') ? CharCountFromHint[' '] : 0) + 1;
             SingleWordMaxLength = HintPhrase.Length - (NumWords - 1) - (CharCountFromHint.ContainsKey(' ') ? CharCountFromHint[' '] : 0);
@@ -191,29 +213,6 @@ namespace Anagram
         private void CleanUp()
         {
             Dispose();
-
-            if (DistinctWordList != null)
-            {
-                DistinctWordList.Clear();
-                DistinctWordList = null;
-            }
-
-            if (CharCountFromHint != null)
-            {
-                CharCountFromHint.Clear();
-                CharCountFromHint = null;
-            }
-
-            if (WordsByLength != null)
-            {
-                WordsByLength.Clear();
-                WordsByLength = null;
-            }
-
-            if (MaxPhraseLengths != null)
-            {
-                MaxPhraseLengths = null;
-            }
         }
 
         public bool ExcludeByNumWords(string word, int wordNumber)

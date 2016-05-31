@@ -10,28 +10,28 @@ namespace Anagram
 
         static void Main(string[] args)
         {
-            Console.WriteLine("*** Tests Started {0} ***\n", DateTime.Now);
+            Console.WriteLine("*** Tests Started {0} ***\n\n", DateTime.Now);
 
             var anagram = new Anagram();
 
             foreach (var testData in testDataList.Where(x => x.ExpectedResult))
             {
+                Console.WriteLine("{0}\tStarting Test {1}\n", DateTime.Now, testData.TestNumber);
+
                 anagram.FindSecretPhrase(testData.HintPhrase, testData.MD5HashKey, testData.InputFile);
+                anagram.PrintStats();
 
                 if (anagram.SecretPhraseFound == testData.ExpectedResult && anagram.SecretPhrase == testData.ExpectedSecretPhrase)
                 {
-                    Console.WriteLine("Test {0} returned the expected result", testData.TestNumber);
+                    Console.WriteLine("{0}\tTest {1} returned the expected result\n\n", DateTime.Now, testData.TestNumber);
                 }
                 else
                 {
-                    Console.WriteLine("Test {0} DID NOT return the expected result", testData.TestNumber);
+                    Console.WriteLine("{0}\tTest {1} DID NOT return the expected result\n\n", DateTime.Now, testData.TestNumber);
                 }
-
-                Console.WriteLine();
-                Console.WriteLine();
             }
 
-            Console.WriteLine("*** Tests Ended {0} ***\n", DateTime.Now);
+            Console.WriteLine("\n\n*** Tests Ended {0} ***\n", DateTime.Now);
             Console.ReadLine();
         }
 
