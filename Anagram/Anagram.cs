@@ -100,6 +100,7 @@ namespace Anagram
         public Dictionary<int, List<string>> WordsByLength { get; private set; }
 
         private int[] MaxPhraseLengths;
+        private int[] MinPhraseLengths;
 
         /// <summary>
         /// Total nodes added to the tree
@@ -132,8 +133,6 @@ namespace Anagram
             InputFile = inputFile;
 
             InitializeProperties();
-            MakeDistinctWordList();
-            CreateDistinctWordsDitionary();
 
             new Tree().TreeSearch(NumWords, DistinctWordList, this);
 
@@ -145,6 +144,26 @@ namespace Anagram
         }
 
         private void InitializeProperties()
+        {
+            ClearCollections();
+
+            CharCountFromHint = GetCharCountFromString(HintPhrase);
+            NumWords = (CharCountFromHint.ContainsKey(' ') ? CharCountFromHint[' '] : 0) + 1;
+            SingleWordMaxLength = HintPhrase.Length - (NumWords - 1) - (CharCountFromHint.ContainsKey(' ') ? CharCountFromHint[' '] : 0);
+
+            MakeDistinctWordList();
+            CreateDistinctWordsDitionary();
+            GetMaxPhraseLengths();
+            GetMinPhraseLengths();
+
+            MD5Hash = MD5.Create();
+            SecretPhrase = null;
+            SecretPhraseFound = false;
+            NumNodes = 0;
+            NumMD5HashKeyComparisons = 0;
+        }
+
+        private void ClearCollections()
         {
             if (DistinctWordList != null)
             {
@@ -169,15 +188,10 @@ namespace Anagram
                 MaxPhraseLengths = null;
             }
 
-            CharCountFromHint = GetCharCountFromString(HintPhrase);
-            NumWords = (CharCountFromHint.ContainsKey(' ') ? CharCountFromHint[' '] : 0) + 1;
-            SingleWordMaxLength = HintPhrase.Length - (NumWords - 1) - (CharCountFromHint.ContainsKey(' ') ? CharCountFromHint[' '] : 0);
-            MD5Hash = MD5.Create();
-            SecretPhrase = null;
-            SecretPhraseFound = false;
-            NumNodes = 0;
-            NumMD5HashKeyComparisons = 0;
-            GetMaxPhraseLengths();
+            if (MinPhraseLengths != null)
+            {
+                MinPhraseLengths = null;
+            }
         }
 
         private void CreateDistinctWordsDitionary()
@@ -207,6 +221,28 @@ namespace Anagram
             for (var i = 1; i < MaxPhraseLengths.Length; i++)
             {
                 MaxPhraseLengths[i] = SingleWordMaxLength + ((i - 1) * 2);
+            }
+        }
+
+        private void GetMinPhraseLengths()
+        {
+            MinPhraseLengths = new int[NumWords + 1];
+
+            for (var i = NumWords; i > 0; i--)
+            {
+                var minLength = 0;
+
+                if (i == NumWords)
+                {
+                    minLength = HintPhrase.Length;
+                }
+                else if (i == NumWords - 1)
+                {
+                    //var longestWordLength = DistinctWordList.Max(x => x.Length);
+                    minLength = HintPhrase.Length - (DistinctWordList.Any() ? DistinctWordList.Max(x => x.Length) + 1 : 0);
+                }
+
+                MinPhraseLengths[i] = minLength;
             }
         }
 
@@ -284,17 +320,24 @@ namespace Anagram
             var valid = false;
             var numWordsInString = word.Count(x => x == ' ') + 1;
 
-            if (numWordsInString == NumWords)
+            if (!string.IsNullOrEmpty(word))
             {
-                valid = word.Length == HintPhrase.Length;
-            }
-            else if (numWordsInString == 1)
-            {
-                valid = word.Length <= SingleWordMaxLength;
-            }
-            else
-            {
-                valid = word.Length <= MaxPhraseLengths[numWordsInString];
+                if (numWordsInString == NumWords)
+                {
+                    valid = word.Length == HintPhrase.Length;
+                }
+                else if (numWordsInString == 1)
+                {
+                    valid = word.Length <= SingleWordMaxLength;
+                }
+                else if (numWordsInString == NumWords - 1)
+                {
+                    valid = word.Length >= MinPhraseLengths[numWordsInString] && word.Length <= MaxPhraseLengths[numWordsInString];
+                }
+                else
+                {
+                    valid = word.Length <= MaxPhraseLengths[numWordsInString];
+                }
             }
 
             return valid;

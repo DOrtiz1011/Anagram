@@ -1,6 +1,6 @@
 ﻿namespace Anagram
 {
-    class TestData
+    struct TestData
     {
         public int TestNumber { get; private set; }
         public bool ExpectedResult { get; private set; }

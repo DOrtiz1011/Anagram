@@ -6,15 +6,14 @@ namespace Anagram
 {
     class Program
     {
-        const string inputFile = "wordlist.txt";
-
         static void Main(string[] args)
         {
             Console.WriteLine("*** Tests Started {0} ***\n\n", DateTime.Now);
 
             var anagram = new Anagram();
 
-            foreach (var testData in testDataList.Where(x => x.ExpectedResult))
+            //foreach (var testData in testDataList.Where(x => x.TestNumber == 5))
+            foreach (var testData in testDataList.Where(x => !x.ExpectedResult))
             {
                 Console.WriteLine("{0}\tStarting Test {1}\n", DateTime.Now, testData.TestNumber);
 
@@ -35,6 +34,9 @@ namespace Anagram
             Console.ReadLine();
         }
 
+        const string inputFile = "wordlist.txt";
+        //const string inputFile = "AllEnglishWords.txt";
+
         static List<TestData> testDataList = new List<TestData>()
         {
             new TestData( 1, true,  "poultry outwits ants",    "4624d200580677270a54ccff86b9610e", inputFile, "pastils turnout towy"),
@@ -46,7 +48,10 @@ namespace Anagram
             new TestData( 7, true,  "a b c d a b c d",         "430530dae271684171f86612d00935ad", inputFile, "d c b a d c b a"),
             new TestData( 8, true,  "a b c d e f g h",         "a878170edc8cad2b11adef4c872be6be", inputFile, "a b c d e f g h"),
             new TestData( 9, false, "a b c d a b c d",         "430530dae271684171f86612d00935ac", inputFile, null),
-            new TestData(10, false, "poultry outwits ants",    "4624d200580677270a54ccff86b9611e", inputFile, null),
+            new TestData(10, false, "1 3 2",                   "0cc174b9e0f1baa831c399e269772661", inputFile, null),
+            new TestData(11, false, "a b c d e f g h i j",     "fa5124f324ffAA2030948de7d4bb78ad", inputFile, null),
+            new TestData(12, false, "poultry outwits ants",    "4624d200580677270a54ccff86b9611e", inputFile, null),
+            new TestData(13, true,  "trustpilot",              "f5ad76ee64505e3ae887b634e05f30be", inputFile, "trustpilot"),
         };
     }
 }
