@@ -35,6 +35,9 @@ namespace Anagram
         /// </summary>
         public string SecretPhrase { get; private set; }
 
+        /// <summary>
+        /// Bool that will be true if the secret phrase was found
+        /// </summary>
         public bool SecretPhraseFound { get; private set; }
 
         /// <summary>
@@ -97,7 +100,8 @@ namespace Anagram
         /// </summary>
         private List<string> DistinctWordList { get; set; }
 
-        public Dictionary<int, List<string>> WordsByLength { get; private set; }
+        //public Dictionary<int, List<string>> WordsByLength { get; private set; }
+        public WordHash _WordHash;
 
         private int[] MaxPhraseLengths;
         private int[] MinPhraseLengths;
@@ -152,7 +156,7 @@ namespace Anagram
             SingleWordMaxLength = HintPhrase.Length - (NumWords - 1) - (CharCountFromHint.ContainsKey(' ') ? CharCountFromHint[' '] : 0);
 
             MakeDistinctWordList();
-            CreateDistinctWordsDitionary();
+            _WordHash = new WordHash(DistinctWordList);
             GetMaxPhraseLengths();
             GetMinPhraseLengths();
 
@@ -177,10 +181,9 @@ namespace Anagram
                 CharCountFromHint = null;
             }
 
-            if (WordsByLength != null)
+            if (_WordHash != null)
             {
-                WordsByLength.Clear();
-                WordsByLength = null;
+                _WordHash = null;
             }
 
             if (MaxPhraseLengths != null)
@@ -191,26 +194,6 @@ namespace Anagram
             if (MinPhraseLengths != null)
             {
                 MinPhraseLengths = null;
-            }
-        }
-
-        private void CreateDistinctWordsDitionary()
-        {
-            WordsByLength = new Dictionary<int, List<string>>();
-
-            foreach (var word in DistinctWordList)
-            {
-                if (WordsByLength.ContainsKey(word.Length))
-                {
-                    WordsByLength[word.Length].Add(word);
-                }
-                else
-                {
-                    var list = new List<string>();
-                    list.Add(word);
-
-                    WordsByLength.Add(word.Length, list);
-                }
             }
         }
 
@@ -250,7 +233,7 @@ namespace Anagram
         {
             Dispose();
         }
-
+        
         public bool ExcludeByNumWords(string word, int wordNumber)
         {
             var exclude = false;
@@ -261,11 +244,13 @@ namespace Anagram
             }
             else if (wordNumber == NumWords)
             {
-                exclude = IsAnagram(word);
-
-                if (!exclude)
+                if (IsAnagram(word))
                 {
                     VerifyMd5Hash(word);
+                }
+                else
+                {
+                    exclude = true;
                 }
             }
             else if (wordNumber != 1 && wordNumber < NumWords)
@@ -284,7 +269,7 @@ namespace Anagram
         /// <returns></returns>
         public bool IsWordValid(string word)
         {
-            var isWordValid = false;
+            var invalid = false;
 
             // word must be shorter than or equal to the length of the hint phrase
             if (CheckLength(word))
@@ -296,7 +281,7 @@ namespace Anagram
                     if (!CharCountFromHint.ContainsKey(keyValuePair.Key) || CharCountFromHint[keyValuePair.Key] < keyValuePair.Value)
                     {
                         // if the hash table does have the char or the number of times the char appears is to large the word will be excluded.
-                        isWordValid = true;
+                        invalid = true;
                         break;
                     }
                 }
@@ -304,10 +289,10 @@ namespace Anagram
             else
             {
                 // word is too long
-                isWordValid = true;
+                invalid = true;
             }
 
-            return isWordValid;
+            return invalid;
         }
 
         /// <summary>
@@ -343,22 +328,17 @@ namespace Anagram
             return valid;
         }
 
-        public bool CheckPhraseLength(int parentPhraseLength, int nextWordLength, int wordNumber)
-        {
-            return parentPhraseLength + nextWordLength <= MaxPhraseLengths[wordNumber + 1];
-        }
-
         /// <summary>
         /// Uses the hash table created from the hint phrase to exclude phrases.
         /// </summary>
         /// <param name="phrase"></param>
         /// <returns></returns>
-        public bool IsAnagram(string phrase)
+        private bool IsAnagram(string phrase)
         {
-            var isAnagram = false;
+            var isAnagram = true;
 
             // phrase must exactly match the length of the hint phrase
-            if (CheckLength(phrase))
+            if (phrase.Length == HintPhrase.Length)
             {
                 var wordCharCount = GetCharCountFromString(phrase);
 
@@ -367,14 +347,14 @@ namespace Anagram
                     if (!CharCountFromHint.ContainsKey(keyValuePair.Key) || CharCountFromHint[keyValuePair.Key] != keyValuePair.Value)
                     {
                         // if the hash table does have the char or the number of times the char appears is to large the word will be excluded.
-                        isAnagram = true;
+                        isAnagram = false;
                         break;
                     }
                 }
             }
             else
             {
-                isAnagram = true;
+                isAnagram = false;
             }
 
             return isAnagram;

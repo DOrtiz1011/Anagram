@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Anagram
 {
@@ -10,17 +11,14 @@ namespace Anagram
         /// </summary>
         private Node RootNode { get; set; }
 
-        private int NumWords { get; set; }
-
         private Anagram _Anagram { get; set; }
 
         public void TreeSearch(int numWords, IEnumerable<string> distinctWords, Anagram anagram)
         {
-            NumWords = numWords;
             _Anagram = anagram;
 
             _Anagram.AddNodesStartTime = DateTime.Now;
-            RootNode = new Node(null, null, 0, 0);
+            RootNode = new Node(null, null, 0);
 
             _Anagram.NumNodes++;
             AddNodes();
@@ -36,16 +34,17 @@ namespace Anagram
             while (queue.Count > 0)
             {
                 var currentNode = queue.Dequeue();
+                var newWordNumber = currentNode.WordNumber + 1;
+                var currentPhrase = currentNode.GetFullPhrase();
+                var stringBuilder = new StringBuilder(_Anagram.HintPhrase.Length);
 
-                foreach (var wordsByLength in _Anagram.WordsByLength)
+                foreach (var keyWordListPair in _Anagram._WordHash.Hash)
                 {
-                    var nextWordLength = wordsByLength.Key;
+                    stringBuilder.Clear().Append(currentPhrase).Append(" ").Append(keyWordListPair.Key);
 
-                    if (_Anagram.CheckPhraseLength(currentNode.FullPhraseLength, nextWordLength, currentNode.WordNumber))
+                    if (!_Anagram.ExcludeByNumWords(stringBuilder.ToString().Trim(), newWordNumber))
                     {
-                        var wordList = wordsByLength.Value;   // all words of length nextWordLength
-
-                        foreach (var word in wordList)
+                        foreach (var word in keyWordListPair.Value)
                         {
                             var newNode = currentNode.AddAdjacentNode(word, _Anagram);
 

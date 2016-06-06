@@ -7,15 +7,13 @@ namespace Anagram
     {
         public string Word { get; private set; }
         public int WordNumber { get; private set; }
-        public int FullPhraseLength { get; private set; }
         public Node ParentNode { get; private set; }
 
-        public Node(string word, Node parentNode, int wordNumber, int fullPhraseLength)
+        public Node(string word, Node parentNode, int wordNumber)
         {
             Word = word;
             ParentNode = parentNode;
             WordNumber = wordNumber;
-            FullPhraseLength = fullPhraseLength;
         }
 
         public Node AddAdjacentNode(string newWord, Anagram anagram)
@@ -27,13 +25,13 @@ namespace Anagram
             if (!anagram.ExcludeByNumWords(phrase, newWordNumber))
             {
                 anagram.NumNodes++;
-                newNode = new Node(newWord, this, newWordNumber, phrase.Length);
+                newNode = new Node(newWord, this, newWordNumber);
             }
 
             return newNode;
         }
 
-        private string GetFullPhrase()
+        public string GetFullPhrase()
         {
             var stringBuilder = new StringBuilder();
             var stack = new Stack<string>();

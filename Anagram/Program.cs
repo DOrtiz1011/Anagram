@@ -12,8 +12,9 @@ namespace Anagram
 
             var anagram = new Anagram();
 
-            //foreach (var testData in testDataList.Where(x => x.TestNumber == 5))
-            foreach (var testData in testDataList.Where(x => !x.ExpectedResult))
+            foreach (var testData in testDataList)
+            //foreach (var testData in testDataList.Where(x => x.TestNumber == 4))
+            //foreach (var testData in testDataList.Where(x => !x.ExpectedResult))
             {
                 Console.WriteLine("{0}\tStarting Test {1}\n", DateTime.Now, testData.TestNumber);
 
@@ -34,8 +35,8 @@ namespace Anagram
             Console.ReadLine();
         }
 
-        const string inputFile = "wordlist.txt";
-        //const string inputFile = "AllEnglishWords.txt";
+        //const string inputFile = "wordlist.txt";
+        const string inputFile = "AllEnglishWords.txt";
 
         static List<TestData> testDataList = new List<TestData>()
         {
