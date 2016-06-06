@@ -35,8 +35,8 @@ namespace Anagram
             Console.ReadLine();
         }
 
-        //const string inputFile = "wordlist.txt";
-        const string inputFile = "AllEnglishWords.txt";
+        const string inputFile = "wordlist.txt";
+        //const string inputFile = "AllEnglishWords.txt";
 
         static List<TestData> testDataList = new List<TestData>()
         {
