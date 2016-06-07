@@ -16,11 +16,6 @@ namespace Anagram
             WordNumber = wordNumber;
         }
 
-        public Node AddAdjacentNode(string newWord)
-        {
-            return new Node(newWord, this, WordNumber + 1);
-        }
-
         public string GetFullPhrase()
         {
             var stringBuilder = new StringBuilder();

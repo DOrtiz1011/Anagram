@@ -5,7 +5,7 @@ namespace Anagram
 {
     internal class Tree
     {
-        public void TreeSearch(Anagram anagram)
+        public void AddNodes(Anagram anagram)
         {
             var queue = new Queue<Node>();
             var stringBuilder = new StringBuilder(anagram.HintPhrase.Length);
@@ -19,18 +19,36 @@ namespace Anagram
                 var currentPhrase = currentNode.GetFullPhrase();
                 var newWordNumber = currentNode.WordNumber + 1;
 
+                stringBuilder.Clear().Append(currentPhrase);
+                var endIndexOfCurrentPhrase = stringBuilder.Length;
+
                 foreach (var keyWordListPair in anagram.WordHash)
                 {
-                    var currentPhrasePlusNextKey = stringBuilder.Clear().Append(currentPhrase).Append(" ").Append(keyWordListPair.Key).ToString().Trim();
+                    if (!string.IsNullOrEmpty(currentPhrase))
+                    {
+                        stringBuilder.Append(" ");
+                    }
 
-                    if (anagram.IsPhraseValid(currentPhrasePlusNextKey, newWordNumber))
+                    stringBuilder.Append(keyWordListPair.Key);
+                    var lengthToRemove = stringBuilder.Length - endIndexOfCurrentPhrase;
+
+                    if (anagram.IsPhraseValid(stringBuilder.ToString(), newWordNumber))
                     {
                         // loop through each word that matches the key
                         foreach (var newWord in keyWordListPair.Value)
                         {
                             if (newWordNumber == anagram.NumWords)
                             {
-                                anagram.VerifyMd5Hash(string.Format("{0} {1}", currentPhrase, newWord).Trim());
+                                stringBuilder.Remove(endIndexOfCurrentPhrase, lengthToRemove);
+
+                                if (stringBuilder.Length > 0)
+                                {
+                                    stringBuilder.Append(" ");
+                                }
+
+                                stringBuilder.Append(newWord);
+
+                                anagram.VerifyMd5Hash(stringBuilder.ToString());
 
                                 if (anagram.SecretPhraseFound)
                                 {
@@ -39,11 +57,13 @@ namespace Anagram
                             }
                             else if (newWordNumber < anagram.NumWords)
                             {
+                                queue.Enqueue(new Node(newWord, currentNode, newWordNumber));
                                 anagram.NumNodes++;
-                                queue.Enqueue(currentNode.AddAdjacentNode(newWord));
                             }
                         }
                     }
+
+                    stringBuilder.Remove(endIndexOfCurrentPhrase, lengthToRemove);
                 }
             }
         }

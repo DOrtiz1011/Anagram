@@ -150,7 +150,7 @@ namespace Anagram
         {
             AddNodesStartTime = DateTime.Now;
 
-            new Tree().TreeSearch(this);
+            new Tree().AddNodes(this);
 
             AddNodesEndTime = DateTime.Now;
         }
