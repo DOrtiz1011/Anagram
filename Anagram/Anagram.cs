@@ -100,7 +100,7 @@ namespace Anagram
         /// </summary>
         private List<string> DistinctWordList { get; set; }
 
-        public WordHash _WordHash;
+        public Dictionary<string, List<string>> WordHash { get; private set; }
 
         private int[] MaxPhraseLengths;
         private int[] MinPhraseLengths;
@@ -164,7 +164,7 @@ namespace Anagram
             SingleWordMaxLength = HintPhrase.Length - (NumWords - 1) - (CharCountFromHint.ContainsKey(' ') ? CharCountFromHint[' '] : 0);
 
             MakeDistinctWordList();
-            _WordHash = new WordHash(DistinctWordList);
+            CreateWordHash();
             GetMaxPhraseLengths();
             GetMinPhraseLengths();
 
@@ -189,9 +189,10 @@ namespace Anagram
                 CharCountFromHint = null;
             }
 
-            if (_WordHash != null)
+            if (WordHash != null)
             {
-                _WordHash = null;
+                WordHash.Clear();
+                WordHash = null;
             }
 
             if (MaxPhraseLengths != null)
@@ -203,6 +204,32 @@ namespace Anagram
             {
                 MinPhraseLengths = null;
             }
+        }
+
+        private void CreateWordHash()
+        {
+            WordHash = new Dictionary<string, List<string>>();
+
+            foreach (var word in DistinctWordList)
+            {
+                var key = GetHashKey(word);
+
+                if (WordHash.ContainsKey(key))
+                {
+                    WordHash[key].Add(word);
+                }
+                else
+                {
+                    WordHash.Add(key, new List<string>() { word });
+                }
+            }
+        }
+
+        private string GetHashKey(string word)
+        {
+            var charArray = word.ToCharArray();
+            Array.Sort(charArray);
+            return new string(charArray);
         }
 
         private void GetMaxPhraseLengths()

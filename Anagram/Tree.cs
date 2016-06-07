@@ -19,7 +19,7 @@ namespace Anagram
                 var currentPhrase = currentNode.GetFullPhrase();
                 var newWordNumber = currentNode.WordNumber + 1;
 
-                foreach (var keyWordListPair in anagram._WordHash.Hash)
+                foreach (var keyWordListPair in anagram.WordHash)
                 {
                     var currentPhrasePlusNextKey = stringBuilder.Clear().Append(currentPhrase).Append(" ").Append(keyWordListPair.Key).ToString().Trim();
 
@@ -39,10 +39,8 @@ namespace Anagram
                             }
                             else if (newWordNumber < anagram.NumWords)
                             {
-                                var newNode = currentNode.AddAdjacentNode(newWord);
-
                                 anagram.NumNodes++;
-                                queue.Enqueue(newNode);
+                                queue.Enqueue(currentNode.AddAdjacentNode(newWord));
                             }
                         }
                     }

@@ -39,7 +39,6 @@
     <Compile Include="Node.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WordHash.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
@@ -47,10 +46,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="AllEnglishWords.txt">
+    <Content Include="WordListAllEnglishWords.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="wordlist.txt">
+    <Content Include="WordList.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
