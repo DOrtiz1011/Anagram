@@ -53,7 +53,7 @@ namespace Anagram
         /// <summary>
         /// The longest a single word can be in the solution.
         /// </summary>
-        public int SingleWordMaxLength { get; private set; }
+        private int SingleWordMaxLength { get; set; }
 
         /// <summary>
         /// Hash that uses the chars in the hint phrase as a key and the number of times that char appears as the value.
@@ -63,32 +63,32 @@ namespace Anagram
         /// <summary>
         /// Start time of the entire process.
         /// </summary>
-        public DateTime? StartTime { get; set; }
+        public DateTime? StartTime { get; private set; }
 
         /// <summary>
         /// End time of the entire process.
         /// </summary>
-        public DateTime? EndTime { get; set; }
+        public DateTime? EndTime { get; private set; }
 
         /// <summary>
         /// Start time of the creation of the distinct word list.
         /// </summary>
-        public DateTime? DistinctListStartTime { get; set; }
+        public DateTime? DistinctListStartTime { get; private set; }
 
         /// <summary>
         /// End time of the creation of the distinct word list.
         /// </summary>
-        public DateTime? DistinctListEndTime { get; set; }
+        public DateTime? DistinctListEndTime { get; private set; }
 
         /// <summary>
         /// Start time of adding nodes to the tree.
         /// </summary>
-        public DateTime? AddNodesStartTime { get; set; }
+        public DateTime? AddNodesStartTime { get; private set; }
 
         /// <summary>
         /// End time of adding noded to the tree
         /// </summary>
-        public DateTime? AddNodesEndTime { get; set; }
+        public DateTime? AddNodesEndTime { get; private set; }
 
         /// <summary>
         /// Full or relative path to the input file. If it is just the file name then it assumes the current working directory.
@@ -100,16 +100,17 @@ namespace Anagram
         /// </summary>
         private List<string> DistinctWordList { get; set; }
 
-        //public Dictionary<int, List<string>> WordsByLength { get; private set; }
         public WordHash _WordHash;
 
         private int[] MaxPhraseLengths;
         private int[] MinPhraseLengths;
 
+        public TimeSpan TotalTime { get { return EndTime.Value - StartTime.Value; } }
+
         /// <summary>
         /// Total nodes added to the tree
         /// </summary>
-        internal int NumNodes { get; set; }
+        public int NumNodes { get; set; }
 
         #endregion Properties
 
@@ -137,14 +138,21 @@ namespace Anagram
             InputFile = inputFile;
 
             InitializeProperties();
-
-            new Tree().TreeSearch(NumWords, DistinctWordList, this);
+            TreeSearch();
+            CleanUp();
 
             EndTime = DateTime.Now;
 
-            CleanUp();
-
             return SecretPhraseFound;
+        }
+
+        private void TreeSearch()
+        {
+            AddNodesStartTime = DateTime.Now;
+
+            new Tree().TreeSearch(this);
+
+            AddNodesEndTime = DateTime.Now;
         }
 
         private void InitializeProperties()
@@ -221,7 +229,6 @@ namespace Anagram
                 }
                 else if (i == NumWords - 1)
                 {
-                    //var longestWordLength = DistinctWordList.Max(x => x.Length);
                     minLength = HintPhrase.Length - (DistinctWordList.Any() ? DistinctWordList.Max(x => x.Length) + 1 : 0);
                 }
 
@@ -233,33 +240,22 @@ namespace Anagram
         {
             Dispose();
         }
-        
-        public bool ExcludeByNumWords(string word, int wordNumber)
-        {
-            var exclude = false;
 
-            if (wordNumber > NumWords)
+        public bool IsPhraseValid(string word, int wordNumber)
+        {
+            var isValid = false;
+
+            if (wordNumber == NumWords)
             {
-                exclude = true;
+                isValid = IsPhraseAnagram(word);
             }
-            else if (wordNumber == NumWords)
-            {
-                if (IsAnagram(word))
-                {
-                    VerifyMd5Hash(word);
-                }
-                else
-                {
-                    exclude = true;
-                }
-            }
-            else if (wordNumber != 1 && wordNumber < NumWords)
+            else
             {
                 // wordNumber != 1 => words have already be individually filtered so no need to do it again
-                exclude = IsWordValid(word);
+                isValid = IsSubPhraseValid(word);
             }
 
-            return exclude;
+            return isValid;
         }
 
         /// <summary>
@@ -267,9 +263,9 @@ namespace Anagram
         /// </summary>
         /// <param name="word"></param>
         /// <returns></returns>
-        public bool IsWordValid(string word)
+        private bool IsSubPhraseValid(string word)
         {
-            var invalid = false;
+            var invalid = true;
 
             // word must be shorter than or equal to the length of the hint phrase
             if (CheckLength(word))
@@ -281,7 +277,7 @@ namespace Anagram
                     if (!CharCountFromHint.ContainsKey(keyValuePair.Key) || CharCountFromHint[keyValuePair.Key] < keyValuePair.Value)
                     {
                         // if the hash table does have the char or the number of times the char appears is to large the word will be excluded.
-                        invalid = true;
+                        invalid = false;
                         break;
                     }
                 }
@@ -289,7 +285,7 @@ namespace Anagram
             else
             {
                 // word is too long
-                invalid = true;
+                invalid = false;
             }
 
             return invalid;
@@ -300,7 +296,7 @@ namespace Anagram
         /// </summary>
         /// <param name="word"></param>
         /// <returns></returns>
-        public bool CheckLength(string word)
+        private bool CheckLength(string word)
         {
             var valid = false;
             var numWordsInString = word.Count(x => x == ' ') + 1;
@@ -333,7 +329,7 @@ namespace Anagram
         /// </summary>
         /// <param name="phrase"></param>
         /// <returns></returns>
-        private bool IsAnagram(string phrase)
+        private bool IsPhraseAnagram(string phrase)
         {
             var isAnagram = true;
 
@@ -394,7 +390,7 @@ namespace Anagram
             {
                 var wordLower = word.Trim().ToLower();
 
-                if (!IsWordValid(wordLower))
+                if (IsSubPhraseValid(wordLower))
                 {
                     DistinctWordList.Add(wordLower);
                 }
@@ -428,7 +424,7 @@ namespace Anagram
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        private void VerifyMd5Hash(string input)
+        public void VerifyMd5Hash(string input)
         {
             NumMD5HashKeyComparisons++;
 
@@ -444,7 +440,7 @@ namespace Anagram
             ((IDisposable)MD5Hash).Dispose();
         }
 
-        public void PrintStats()
+        public void PrintFullStats()
         {
             var stringBuilder = new StringBuilder();
 
@@ -452,7 +448,7 @@ namespace Anagram
             stringBuilder.AppendLine(string.Format(" | Hint Phrase:          {0}", HintPhrase));
             stringBuilder.AppendLine(string.Format(" | MD5 Hash Key:         {0}", MD5HashKeyOfSolution));
             stringBuilder.AppendLine(" |");
-            stringBuilder.AppendLine(string.Format(" | Total Time:           {0}", EndTime - StartTime));
+            stringBuilder.AppendLine(string.Format(" | Total Time:           {0}", TotalTime));
             stringBuilder.AppendLine(" |");
             stringBuilder.AppendLine(string.Format(" | Word Filter Time:     {0}", DistinctListEndTime - DistinctListStartTime));
             stringBuilder.AppendLine(string.Format(" | Words Filted:         {0:n0}", DistinctWordList.Count));

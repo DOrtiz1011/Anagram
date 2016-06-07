@@ -16,19 +16,9 @@ namespace Anagram
             WordNumber = wordNumber;
         }
 
-        public Node AddAdjacentNode(string newWord, Anagram anagram)
+        public Node AddAdjacentNode(string newWord)
         {
-            var newNode = default(Node);
-            var newWordNumber = WordNumber + 1;
-            var phrase = string.Format("{0} {1}", GetFullPhrase(), newWord).Trim();
-
-            if (!anagram.ExcludeByNumWords(phrase, newWordNumber))
-            {
-                anagram.NumNodes++;
-                newNode = new Node(newWord, this, newWordNumber);
-            }
-
-            return newNode;
+            return new Node(newWord, this, WordNumber + 1);
         }
 
         public string GetFullPhrase()

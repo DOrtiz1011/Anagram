@@ -11,34 +11,44 @@ namespace Anagram
             Console.WriteLine("*** Tests Started {0} ***\n\n", DateTime.Now);
 
             var anagram = new Anagram();
+            var testsToRun = testDataList;                                  // All Tests
+            //var testsToRun = testDataList.Where(x => x.TestNumber == 1);    // Specific Test
+            //var testsToRun = testDataList.Where(x => x.ExpectedResult);     // Positive Tests
+            //var testsToRun = testDataList.Where(x => !x.ExpectedResult);    // Negative Tests
 
-            foreach (var testData in testDataList)
-            //foreach (var testData in testDataList.Where(x => x.TestNumber == 4))
-            //foreach (var testData in testDataList.Where(x => !x.ExpectedResult))
+            foreach (var testData in testsToRun)
             {
-                Console.WriteLine("{0}\tStarting Test {1}\n", DateTime.Now, testData.TestNumber);
+                Console.WriteLine("{0}\tSTARTING TEST {1}\n", DateTime.Now, testData.TestNumber);
 
                 anagram.FindSecretPhrase(testData.HintPhrase, testData.MD5HashKey, testData.InputFile);
-                anagram.PrintStats();
+                anagram.PrintFullStats();
 
-                if (anagram.SecretPhraseFound == testData.ExpectedResult && anagram.SecretPhrase == testData.ExpectedSecretPhrase)
-                {
-                    Console.WriteLine("{0}\tTest {1} returned the expected result\n\n", DateTime.Now, testData.TestNumber);
-                }
-                else
-                {
-                    Console.WriteLine("{0}\tTest {1} DID NOT return the expected result\n\n", DateTime.Now, testData.TestNumber);
-                }
+                testData.ReturnedResult = anagram.SecretPhraseFound;
+                testData.ReturnedSecretPhrase = anagram.SecretPhrase;
+                testData.TotalTime = anagram.TotalTime;
+            }
+
+            if (!testsToRun.Any(x => !x.TestPassed))
+            {
+                Console.WriteLine("ALL TESTS PASSED");
+            }
+
+            foreach (var testData in testsToRun)
+            {
+                Console.WriteLine(string.Format("Test {0,2}:  {1}  Total Time = {2}",
+                    testData.TestNumber,
+                    testData.TestPassed ? " Passed " : "*Failed*",
+                    testData.TotalTime));
             }
 
             Console.WriteLine("\n\n*** Tests Ended {0} ***\n", DateTime.Now);
             Console.ReadLine();
         }
 
-        const string inputFile = "wordlist.txt";
-        //const string inputFile = "AllEnglishWords.txt";
+        private const string inputFile = "wordlist.txt";
+        //private const string inputFile = "AllEnglishWords.txt";
 
-        static List<TestData> testDataList = new List<TestData>()
+        private static List<TestData> testDataList = new List<TestData>()
         {
             new TestData( 1, true,  "poultry outwits ants",    "4624d200580677270a54ccff86b9610e", inputFile, "pastils turnout towy"),
             new TestData( 2, true,  "poultry outwits ants",    "4a9f51db2c7eba0c724499f749d3176a", inputFile, "trustpilot wants you"),
