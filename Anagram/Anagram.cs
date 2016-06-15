@@ -393,7 +393,7 @@ namespace Anagram
         {
             var countDictionary = new Dictionary<char, int>();
 
-            foreach (var character in stringToCount.Trim().ToCharArray())
+            foreach (var character in stringToCount.ToCharArray())
             {
                 if (countDictionary.ContainsKey(character))
                 {

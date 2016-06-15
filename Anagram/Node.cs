@@ -35,7 +35,7 @@ namespace Anagram
 
             stringBuilder.Append(Word);
 
-            return stringBuilder.ToString().Trim();
+            return stringBuilder.ToString();
         }
     }
 }
