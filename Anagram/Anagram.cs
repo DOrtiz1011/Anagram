@@ -276,10 +276,14 @@ namespace Anagram
             {
                 isValid = IsPhraseAnagram(word);
             }
-            else
+            else if (wordNumber > 1)
             {
                 // wordNumber != 1 => words have already be individually filtered so no need to do it again
                 isValid = IsSubPhraseValid(word);
+            }
+            else if (wordNumber == 1)
+            {
+                isValid = true;
             }
 
             return isValid;
