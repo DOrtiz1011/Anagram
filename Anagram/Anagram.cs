@@ -100,7 +100,15 @@ namespace Anagram
         /// </summary>
         private List<string> DistinctWordList { get; set; }
 
-        public Dictionary<string, List<string>> WordHash { get; private set; }
+        public int WordsFiltered
+        {
+            get
+            {
+                return DistinctWordList.Count;
+            }
+        }
+
+        public Dictionary<string, HashSet<string>> WordHash { get; private set; }
 
         private int[] MaxPhraseLengths;
         private int[] MinPhraseLengths;
@@ -208,7 +216,7 @@ namespace Anagram
 
         private void CreateWordHash()
         {
-            WordHash = new Dictionary<string, List<string>>();
+            WordHash = new Dictionary<string, HashSet<string>>();
 
             foreach (var word in DistinctWordList)
             {
@@ -220,7 +228,7 @@ namespace Anagram
                 }
                 else
                 {
-                    WordHash.Add(key, new List<string>() { word });
+                    WordHash.Add(key, new HashSet<string>() { word });
                 }
             }
         }
@@ -397,15 +405,15 @@ namespace Anagram
         {
             var countDictionary = new Dictionary<char, int>();
 
-            foreach (var character in stringToCount.ToCharArray())
+            for (var i = 0; i < stringToCount.Length; i++)
             {
-                if (countDictionary.ContainsKey(character))
+                if (countDictionary.ContainsKey(stringToCount[i]))
                 {
-                    countDictionary[character]++;
+                    countDictionary[stringToCount[i]]++;
                 }
                 else
                 {
-                    countDictionary.Add(character, 1);
+                    countDictionary.Add(stringToCount[i], 1);
                 }
             }
 
@@ -482,7 +490,7 @@ namespace Anagram
             stringBuilder.AppendLine(string.Format(" | Total Time:           {0}", TotalTime));
             stringBuilder.AppendLine(" |");
             stringBuilder.AppendLine(string.Format(" | Word Filter Time:     {0}", DistinctListEndTime - DistinctListStartTime));
-            stringBuilder.AppendLine(string.Format(" | Words Filted:         {0:n0}", DistinctWordList.Count));
+            stringBuilder.AppendLine(string.Format(" | Words Filted:         {0:n0}", WordsFiltered));
             stringBuilder.AppendLine(" |");
             stringBuilder.AppendLine(string.Format(" | Node Adding Time:     {0}", AddNodesEndTime - AddNodesStartTime));
             stringBuilder.AppendLine(string.Format(" | Nodes Added:          {0:n0}", NumNodes));

@@ -33,6 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="TablePrinter.cs" />
     <Compile Include="TestData.cs" />
     <Compile Include="Tree.cs" />
     <Compile Include="Anagram.cs" />

@@ -13,6 +13,8 @@ namespace Anagram
         public string ExpectedSecretPhrase { get; private set; }
         public string ReturnedSecretPhrase { get; set; }
         public TimeSpan TotalTime { get; set; }
+        public int WordsFiltered { get; set; }
+        public int NodesAdded { get; set; }
 
         public bool TestPassed
         {

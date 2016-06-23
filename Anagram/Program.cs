@@ -6,6 +6,9 @@ namespace Anagram
 {
     class Program
     {
+        private const string inputFile = "WordList.txt";
+        //private const string inputFile = "WordListAllEnglishWords.txt";
+
         static void Main(string[] args)
         {
             Console.WriteLine("*** Tests Started {0} ***\n\n", DateTime.Now);
@@ -26,27 +29,44 @@ namespace Anagram
                 testData.ReturnedResult = anagram.SecretPhraseFound;
                 testData.ReturnedSecretPhrase = anagram.SecretPhrase;
                 testData.TotalTime = anagram.TotalTime;
+                testData.WordsFiltered = anagram.WordsFiltered;
+                testData.NodesAdded = anagram.NumNodes;
             }
 
             if (!testsToRun.Any(x => !x.TestPassed))
             {
-                Console.WriteLine("ALL TESTS PASSED");
+                Console.WriteLine("ALL TESTS PASSED\n");
             }
+
+            var headerRow = new string[] { "Test #", "Result", "Total Time", "Words Filtered", "Nodes Added" };
+
+            TablePrinter.PrintLine();
+            TablePrinter.PrintRow(headerRow);
+            TablePrinter.PrintLine();
 
             foreach (var testData in testsToRun)
             {
-                Console.WriteLine(string.Format("Test {0,2}:  {1}  Total Time = {2}",
-                    testData.TestNumber,
+                TablePrinter.PrintRow(new string[]
+                {
+                    testData.TestNumber.ToString(),
                     testData.TestPassed ? " Passed " : "*Failed*",
-                    testData.TotalTime));
+                    testData.TotalTime.ToString(),
+                    testData.WordsFiltered.ToString(),
+                    testData.NodesAdded.ToString()
+                });
             }
+
+            TablePrinter.PrintLine();
+
+            var doubleAverageTicks = testsToRun.Average(timeSpan => timeSpan.TotalTime.Ticks);
+            var longAverageTicks = Convert.ToInt64(doubleAverageTicks);
+            var averageTime = new TimeSpan(longAverageTicks);
+
+            Console.WriteLine(string.Format("\nAverage Time = {0}", averageTime));
 
             Console.WriteLine("\n\n*** Tests Ended {0} ***\n", DateTime.Now);
             Console.ReadLine();
         }
-
-        private const string inputFile = "WordList.txt";
-        //private const string inputFile = "WordListAllEnglishWords.txt";
 
         private static List<TestData> testDataList = new List<TestData>()
         {
