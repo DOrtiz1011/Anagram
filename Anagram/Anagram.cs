@@ -28,7 +28,7 @@ namespace Anagram
         /// <summary>
         /// Number of time the MD5 has was used in a comparison.
         /// </summary>
-        public int NumMd5HashKeyComparisons { get; set; }
+        public int NumMd5HashKeyComparisons { get; private set; }
 
         /// <summary>
         /// String that will hold the secret phrase if it is found.
@@ -331,9 +331,9 @@ namespace Anagram
         /// </summary>
         /// <param name="newWordLength"></param>
         /// <param name="wordNumber"></param>
-        /// <param name="currentPhrase"></param>
+        /// <param name="currentPhraseLength"></param>
         /// <returns></returns>
-        public bool CheckLength(int newWordLength, int wordNumber, StringBuilder currentPhrase)
+        public bool CheckLength(int newWordLength, int wordNumber, int currentPhraseLength)
         {
             var validLength = false;
 
@@ -341,13 +341,18 @@ namespace Anagram
             {
                 validLength = true;
             }
-            else if (wordNumber > 1 && wordNumber < NumWords)
+            else
             {
-                validLength = newWordLength + currentPhrase.Length <= HintPhrase.Length;
-            }
-            else if (wordNumber == NumWords)
-            {
-                validLength = newWordLength + currentPhrase.Length == HintPhrase.Length;
+                var phraseLength = newWordLength + currentPhraseLength;
+
+                if (wordNumber > 1 && wordNumber < NumWords)
+                {
+                    validLength = phraseLength <= _maxPhraseLengths[wordNumber] && phraseLength >= _minPhraseLengths[wordNumber];
+                }
+                else if (wordNumber == NumWords)
+                {
+                    validLength = phraseLength == HintPhrase.Length;
+                }
             }
 
             return validLength;
@@ -373,7 +378,7 @@ namespace Anagram
             stringBuilder.AppendLine(" |");
             stringBuilder.AppendLine($" | MD5 Comparisons:      {NumMd5HashKeyComparisons:n0}");
             stringBuilder.AppendLine(" |");
-            stringBuilder.AppendLine(SecretPhraseFound ? $" | Secret Phrase:        {SecretPhrase}" : " | Secret phrase was not found.");
+            stringBuilder.AppendLine(SecretPhraseFound ? $" | Secret Phrase:        {SecretPhrase}" : " | Secret Phrase:        Not Found");
             stringBuilder.AppendLine(" =========================================================");
 
             Console.WriteLine(stringBuilder.ToString());

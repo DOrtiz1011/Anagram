@@ -25,7 +25,9 @@ namespace Anagram
                     currentPhrase.Append(" ");
                 }
 
-                foreach (var wordKeyKeyValuePair in anagram.WordHash.MainHash.Where(wordLengthKeyValuePair => anagram.CheckLength(wordLengthKeyValuePair.Key, newWordNumber, currentPhrase))
+                var endIndexOfCurrentPhrase = currentPhrase.Length;
+
+                foreach (var wordKeyKeyValuePair in anagram.WordHash.MainHash.Where(wordLengthKeyValuePair => anagram.CheckLength(wordLengthKeyValuePair.Key, newWordNumber, endIndexOfCurrentPhrase))
                                                                              .SelectMany(wordLengthKeyValuePair => wordLengthKeyValuePair.Value))
                 {
                     if (newWordNumber <= 1)
@@ -35,7 +37,6 @@ namespace Anagram
                     }
                     else
                     {
-                        var endIndexOfCurrentPhrase = currentPhrase.Length;
                         currentPhrase.Append(wordKeyKeyValuePair.Key);
                         var lengthToRemove = currentPhrase.Length - endIndexOfCurrentPhrase;
 
