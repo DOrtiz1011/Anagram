@@ -3,9 +3,9 @@ using System.Text;
 
 namespace Anagram
 {
-    internal class Tree
+    internal static class Tree
     {
-        public void AddNodes(Anagram anagram)
+        public static void AddNodes(Anagram anagram)
         {
             var queue = new Queue<Node>();
             var stringBuilder = new StringBuilder(anagram.HintPhrase.Length);

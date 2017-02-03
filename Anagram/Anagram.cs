@@ -1,20 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Linq;
 
 namespace Anagram
 {
-    public class Anagram : IDisposable
+    internal sealed class Anagram : IDisposable
     {
         #region Fields
 
         /// <summary>
         /// MD5 object instance
         /// </summary>
-        private MD5 MD5Hash;
+        private MD5 _md5Hash;
 
         #endregion Fields
 
@@ -23,12 +23,12 @@ namespace Anagram
         /// <summary>
         /// The MD5 hash key that represents the secret phrase. It is used to veryfy that the phrase was found.
         /// </summary>
-        public string MD5HashKeyOfSolution { get; private set; }
+        private string Md5HashKeyOfSolution { get; set; }
 
         /// <summary>
         /// Number of time the MD5 has was used in a comparison.
         /// </summary>
-        public int NumMD5HashKeyComparisons { get; private set; }
+        private int NumMd5HashKeyComparisons { get; set; }
 
         /// <summary>
         /// String that will hold the secret phrase if it is found.
@@ -63,57 +63,62 @@ namespace Anagram
         /// <summary>
         /// Start time of the entire process.
         /// </summary>
-        public DateTime? StartTime { get; private set; }
+        private DateTime? StartTime { get; set; }
 
         /// <summary>
         /// End time of the entire process.
         /// </summary>
-        public DateTime? EndTime { get; private set; }
+        private DateTime? EndTime { get; set; }
 
         /// <summary>
         /// Start time of the creation of the distinct word list.
         /// </summary>
-        public DateTime? DistinctListStartTime { get; private set; }
+        private DateTime? DistinctListStartTime { get; set; }
 
         /// <summary>
         /// End time of the creation of the distinct word list.
         /// </summary>
-        public DateTime? DistinctListEndTime { get; private set; }
+        private DateTime? DistinctListEndTime { get; set; }
 
         /// <summary>
         /// Start time of adding nodes to the tree.
         /// </summary>
-        public DateTime? AddNodesStartTime { get; private set; }
+        private DateTime? AddNodesStartTime { get; set; }
 
         /// <summary>
         /// End time of adding noded to the tree
         /// </summary>
-        public DateTime? AddNodesEndTime { get; private set; }
+        private DateTime? AddNodesEndTime { get; set; }
 
         /// <summary>
         /// Full or relative path to the input file. If it is just the file name then it assumes the current working directory.
         /// </summary>
-        public string InputFile { get; private set; }
+        private string InputFile { get; set; }
 
         /// <summary>
         /// Distinct list of words based on the criteria set by the hint phrase.
         /// </summary>
         private List<string> DistinctWordList { get; set; }
 
-        public int WordsFiltered
-        {
-            get
-            {
-                return DistinctWordList.Count;
-            }
-        }
+        public int WordsFiltered => DistinctWordList.Count;
 
         public Dictionary<string, HashSet<string>> WordHash { get; private set; }
 
-        private int[] MaxPhraseLengths;
-        private int[] MinPhraseLengths;
+        private int[] _maxPhraseLengths;
+        private int[] _minPhraseLengths;
 
-        public TimeSpan TotalTime { get { return EndTime.Value - StartTime.Value; } }
+        internal TimeSpan? TotalTime
+        {
+            get
+            {
+                if (EndTime != null && StartTime != null)
+                {
+                    return EndTime.Value - StartTime.Value;
+                }
+
+                return null;
+            }
+        }
 
         /// <summary>
         /// Total nodes added to the tree
@@ -122,27 +127,27 @@ namespace Anagram
 
         #endregion Properties
 
-        public bool FindSecretPhrase(string hintPhrase, string md5HashKeyOfSolution, string inputFile)
+        public void FindSecretPhrase(string hintPhrase, string md5HashKeyOfSolution, string inputFile)
         {
             StartTime = DateTime.Now;
 
             if (string.IsNullOrEmpty(hintPhrase))
             {
-                throw new ArgumentNullException("hintPhrase", "hintPhrase is null or empty.");
+                throw new ArgumentNullException(nameof(hintPhrase), "hintPhrase is null or empty.");
             }
 
             if (string.IsNullOrEmpty(md5HashKeyOfSolution))
             {
-                throw new ArgumentNullException("md5HashKeyOfSolution", "md5HashKeyOfSolution is null or empty.");
+                throw new ArgumentNullException(nameof(md5HashKeyOfSolution), "md5HashKeyOfSolution is null or empty.");
             }
 
             if (string.IsNullOrEmpty(inputFile))
             {
-                throw new ArgumentNullException("inputFile", "inputFile is null or empty.");
+                throw new ArgumentNullException(nameof(inputFile), "inputFile is null or empty.");
             }
 
             HintPhrase = hintPhrase;
-            MD5HashKeyOfSolution = md5HashKeyOfSolution;
+            Md5HashKeyOfSolution = md5HashKeyOfSolution;
             InputFile = inputFile;
 
             InitializeProperties();
@@ -150,15 +155,13 @@ namespace Anagram
             CleanUp();
 
             EndTime = DateTime.Now;
-
-            return SecretPhraseFound;
         }
 
         private void TreeSearch()
         {
             AddNodesStartTime = DateTime.Now;
 
-            new Tree().AddNodes(this);
+            Tree.AddNodes(this);
 
             AddNodesEndTime = DateTime.Now;
         }
@@ -176,42 +179,20 @@ namespace Anagram
             GetMaxPhraseLengths();
             GetMinPhraseLengths();
 
-            MD5Hash = MD5.Create();
+            _md5Hash = MD5.Create();
             SecretPhrase = null;
             SecretPhraseFound = false;
             NumNodes = 0;
-            NumMD5HashKeyComparisons = 0;
+            NumMd5HashKeyComparisons = 0;
         }
 
         private void ClearCollections()
         {
-            if (DistinctWordList != null)
-            {
-                DistinctWordList.Clear();
-                DistinctWordList = null;
-            }
-
-            if (CharCountFromHint != null)
-            {
-                CharCountFromHint.Clear();
-                CharCountFromHint = null;
-            }
-
-            if (WordHash != null)
-            {
-                WordHash.Clear();
-                WordHash = null;
-            }
-
-            if (MaxPhraseLengths != null)
-            {
-                MaxPhraseLengths = null;
-            }
-
-            if (MinPhraseLengths != null)
-            {
-                MinPhraseLengths = null;
-            }
+            DistinctWordList = null;
+            CharCountFromHint = null;
+            WordHash = null;
+            _maxPhraseLengths = null;
+            _minPhraseLengths = null;
         }
 
         private void CreateWordHash()
@@ -228,12 +209,12 @@ namespace Anagram
                 }
                 else
                 {
-                    WordHash.Add(key, new HashSet<string>() { word });
+                    WordHash.Add(key, new HashSet<string> { word });
                 }
             }
         }
 
-        private string GetHashKey(string word)
+        private static string GetHashKey(string word)
         {
             var charArray = word.ToCharArray();
             Array.Sort(charArray);
@@ -242,17 +223,17 @@ namespace Anagram
 
         private void GetMaxPhraseLengths()
         {
-            MaxPhraseLengths = new int[NumWords + 1];
+            _maxPhraseLengths = new int[NumWords + 1];
 
-            for (var i = 1; i < MaxPhraseLengths.Length; i++)
+            for (var i = 1; i < _maxPhraseLengths.Length; i++)
             {
-                MaxPhraseLengths[i] = SingleWordMaxLength + ((i - 1) * 2);
+                _maxPhraseLengths[i] = SingleWordMaxLength + (i - 1) * 2;
             }
         }
 
         private void GetMinPhraseLengths()
         {
-            MinPhraseLengths = new int[NumWords + 1];
+            _minPhraseLengths = new int[NumWords + 1];
 
             for (var i = NumWords; i > 0; i--)
             {
@@ -267,14 +248,11 @@ namespace Anagram
                     minLength = HintPhrase.Length - (DistinctWordList.Any() ? DistinctWordList.Max(x => x.Length) + 1 : 0);
                 }
 
-                MinPhraseLengths[i] = minLength;
+                _minPhraseLengths[i] = minLength;
             }
         }
 
-        private void CleanUp()
-        {
-            Dispose();
-        }
+        private void CleanUp() => Dispose();
 
         public bool IsPhraseValid(string word, int wordNumber)
         {
@@ -309,16 +287,9 @@ namespace Anagram
             // word must be shorter than or equal to the length of the hint phrase
             if (CheckLength(word))
             {
-                var wordCharCountDictionary = GetCharCountFromString(word);
-
-                foreach (var keyValuePair in wordCharCountDictionary)
+                if (GetCharCountFromString(word).Any(keyValuePair => !CharCountFromHint.ContainsKey(keyValuePair.Key) || CharCountFromHint[keyValuePair.Key] < keyValuePair.Value))
                 {
-                    if (!CharCountFromHint.ContainsKey(keyValuePair.Key) || CharCountFromHint[keyValuePair.Key] < keyValuePair.Value)
-                    {
-                        // if the hash table does have the char or the number of times the char appears is to large the word will be excluded.
-                        invalid = false;
-                        break;
-                    }
+                    invalid = false;
                 }
             }
             else
@@ -337,27 +308,29 @@ namespace Anagram
         /// <returns></returns>
         private bool CheckLength(string word)
         {
-            var valid = false;
+            bool valid;
             var numWordsInString = word.Count(x => x == ' ') + 1;
 
-            if (!string.IsNullOrEmpty(word))
+            if (string.IsNullOrEmpty(word))
             {
-                if (numWordsInString == NumWords)
-                {
-                    valid = word.Length == HintPhrase.Length;
-                }
-                else if (numWordsInString == 1)
-                {
-                    valid = word.Length <= SingleWordMaxLength;
-                }
-                else if (numWordsInString == NumWords - 1)
-                {
-                    valid = word.Length >= MinPhraseLengths[numWordsInString] && word.Length <= MaxPhraseLengths[numWordsInString];
-                }
-                else
-                {
-                    valid = word.Length <= MaxPhraseLengths[numWordsInString];
-                }
+                return false;
+            }
+
+            if (numWordsInString == NumWords)
+            {
+                valid = word.Length == HintPhrase.Length;
+            }
+            else if (numWordsInString == 1)
+            {
+                valid = word.Length <= SingleWordMaxLength;
+            }
+            else if (numWordsInString == NumWords - 1)
+            {
+                valid = word.Length >= _minPhraseLengths[numWordsInString] && word.Length <= _maxPhraseLengths[numWordsInString];
+            }
+            else
+            {
+                valid = word.Length <= _maxPhraseLengths[numWordsInString];
             }
 
             return valid;
@@ -375,16 +348,9 @@ namespace Anagram
             // phrase must exactly match the length of the hint phrase
             if (phrase.Length == HintPhrase.Length)
             {
-                var wordCharCount = GetCharCountFromString(phrase);
-
-                foreach (var keyValuePair in wordCharCount)
+                if (GetCharCountFromString(phrase).Any(keyValuePair => !CharCountFromHint.ContainsKey(keyValuePair.Key) || CharCountFromHint[keyValuePair.Key] != keyValuePair.Value))
                 {
-                    if (!CharCountFromHint.ContainsKey(keyValuePair.Key) || CharCountFromHint[keyValuePair.Key] != keyValuePair.Value)
-                    {
-                        // if the hash table does have the char or the number of times the char appears is to large the word will be excluded.
-                        isAnagram = false;
-                        break;
-                    }
+                    isAnagram = false;
                 }
             }
             else
@@ -401,19 +367,19 @@ namespace Anagram
         /// </summary>
         /// <param name="stringToCount"></param>
         /// <returns></returns>
-        private Dictionary<char, int> GetCharCountFromString(string stringToCount)
+        private static Dictionary<char, int> GetCharCountFromString(string stringToCount)
         {
             var countDictionary = new Dictionary<char, int>();
 
-            for (var i = 0; i < stringToCount.Length; i++)
+            foreach (var t in stringToCount)
             {
-                if (countDictionary.ContainsKey(stringToCount[i]))
+                if (countDictionary.ContainsKey(t))
                 {
-                    countDictionary[stringToCount[i]]++;
+                    countDictionary[t]++;
                 }
                 else
                 {
-                    countDictionary.Add(stringToCount[i], 1);
+                    countDictionary.Add(t, 1);
                 }
             }
 
@@ -425,14 +391,9 @@ namespace Anagram
             DistinctListStartTime = DateTime.Now;
             DistinctWordList = new List<string>();
 
-            foreach (var word in File.ReadAllLines(InputFile).ToList())
+            foreach (var wordLower in File.ReadAllLines(InputFile).ToList().Select(word => word.Trim().ToLower()).Where(IsSubPhraseValid))
             {
-                var wordLower = word.Trim().ToLower();
-
-                if (IsSubPhraseValid(wordLower))
-                {
-                    DistinctWordList.Add(wordLower);
-                }
+                DistinctWordList.Add(wordLower);
             }
 
             DistinctWordList = DistinctWordList.OrderByDescending(x => x.Length).ThenBy(x => x).Distinct().ToList();
@@ -447,12 +408,12 @@ namespace Anagram
         /// <returns>MD5 hash key of the input string</returns>
         private string GetMd5Hash(string input)
         {
-            var byteArray = MD5Hash.ComputeHash(Encoding.UTF8.GetBytes(input));
+            var byteArray = _md5Hash.ComputeHash(Encoding.UTF8.GetBytes(input));
             var stringBuilder = new StringBuilder();
 
-            for (var i = 0; i < byteArray.Length; i++)
+            foreach (var t in byteArray)
             {
-                stringBuilder.Append(byteArray[i].ToString("x2"));
+                stringBuilder.Append(t.ToString("x2"));
             }
 
             return stringBuilder.ToString();
@@ -465,39 +426,39 @@ namespace Anagram
         /// <returns></returns>
         public void VerifyMd5Hash(string input)
         {
-            NumMD5HashKeyComparisons++;
+            NumMd5HashKeyComparisons++;
 
-            if (0 == StringComparer.OrdinalIgnoreCase.Compare(GetMd5Hash(input), MD5HashKeyOfSolution))
+            if (0 != StringComparer.OrdinalIgnoreCase.Compare(GetMd5Hash(input), Md5HashKeyOfSolution))
             {
-                SecretPhrase = input;
-                SecretPhraseFound = true;
+                return;
             }
+
+            SecretPhrase = input;
+            SecretPhraseFound = true;
         }
 
-        public void Dispose()
-        {
-            ((IDisposable)MD5Hash).Dispose();
-        }
+        public void Dispose() => ((IDisposable)_md5Hash).Dispose();
 
-        public void PrintFullStats()
+        internal void PrintFullStats()
         {
             var stringBuilder = new StringBuilder();
 
             stringBuilder.AppendLine(" =========================================================");
-            stringBuilder.AppendLine(string.Format(" | Hint Phrase:          {0}", HintPhrase));
-            stringBuilder.AppendLine(string.Format(" | MD5 Hash Key:         {0}", MD5HashKeyOfSolution));
+            stringBuilder.AppendLine($" | Hint Phrase:          {HintPhrase}");
+            stringBuilder.AppendLine($" | MD5 Hash Key:         {Md5HashKeyOfSolution}");
             stringBuilder.AppendLine(" |");
-            stringBuilder.AppendLine(string.Format(" | Total Time:           {0}", TotalTime));
+            stringBuilder.AppendLine($" | Total Time:           {TotalTime}");
             stringBuilder.AppendLine(" |");
-            stringBuilder.AppendLine(string.Format(" | Word Filter Time:     {0}", DistinctListEndTime - DistinctListStartTime));
-            stringBuilder.AppendLine(string.Format(" | Words Filted:         {0:n0}", WordsFiltered));
+            stringBuilder.AppendLine($" | Word Filter Time:     {DistinctListEndTime - DistinctListStartTime}");
+            stringBuilder.AppendLine($" | Words Filted:         {WordsFiltered:n0}");
             stringBuilder.AppendLine(" |");
-            stringBuilder.AppendLine(string.Format(" | Node Adding Time:     {0}", AddNodesEndTime - AddNodesStartTime));
-            stringBuilder.AppendLine(string.Format(" | Nodes Added:          {0:n0}", NumNodes));
+            stringBuilder.AppendLine($" | Node Adding Time:     {AddNodesEndTime - AddNodesStartTime}");
+            stringBuilder.AppendLine($" | Nodes Added:          {NumNodes:n0}");
             stringBuilder.AppendLine(" |");
-            stringBuilder.AppendLine(string.Format(" | MD5 Comparisons:      {0:n0}", NumMD5HashKeyComparisons));
+            stringBuilder.AppendLine($" | MD5 Comparisons:      {NumMd5HashKeyComparisons:n0}");
             stringBuilder.AppendLine(" |");
-            stringBuilder.AppendLine(SecretPhraseFound ? string.Format(" | Secret Phrase:        {0}", SecretPhrase) : " | Secret phrase was not found.");
+            stringBuilder.AppendLine(SecretPhraseFound ? $" | Secret Phrase:        {SecretPhrase}"
+                : " | Secret phrase was not found.");
             stringBuilder.AppendLine(" =========================================================");
 
             Console.WriteLine(stringBuilder.ToString());

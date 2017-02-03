@@ -1,24 +1,25 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Anagram
 {
-    public class Node
+    internal sealed class Node
     {
-        public string Word { get; private set; }
-        public int WordNumber { get; private set; }
-        public Node ParentNode { get; private set; }
+        private string Word { get; }
+        internal int WordNumber { get; }
+        private Node ParentNode { get; }
 
-        public Node(string word, Node parentNode, int wordNumber)
+        internal Node(string word, Node parentNode, int wordNumber)
         {
             Word = word;
             ParentNode = parentNode;
             WordNumber = wordNumber;
         }
 
-        public string GetFullPhrase()
+        internal string GetFullPhrase()
         {
-            var stringBuilder = new StringBuilder();
+            string fullPhrase;
             var stack = new Stack<string>();
             var tempNode = ParentNode;
 
@@ -28,14 +29,23 @@ namespace Anagram
                 tempNode = tempNode.ParentNode;
             }
 
-            while (stack.Count > 0)
+            if (stack.Any())
             {
-                stringBuilder.Append(stack.Pop()).Append(" ");
+                var stringBuilder = new StringBuilder();
+
+                while (stack.Count > 0)
+                {
+                    stringBuilder.Append(stack.Pop()).Append(" ");
+                }
+
+                fullPhrase = stringBuilder.Append(Word).ToString();
+            }
+            else
+            {
+                fullPhrase = Word;
             }
 
-            stringBuilder.Append(Word);
-
-            return stringBuilder.ToString();
+            return fullPhrase;
         }
     }
 }
