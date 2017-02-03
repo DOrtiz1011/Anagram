@@ -15,6 +15,7 @@ namespace Anagram
         public TimeSpan? TotalTime { get; set; }
         public int WordsFiltered { get; set; }
         public int NodesAdded { get; set; }
+        public int Md5Comparisons { get; set; }
 
         public bool TestPassed => ExpectedResult == ReturnedResult && ExpectedSecretPhrase == ReturnedSecretPhrase;
 

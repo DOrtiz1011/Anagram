@@ -5,7 +5,7 @@ namespace Anagram
 {
     internal sealed class WordHash
     {
-        public readonly Dictionary<int, Dictionary<string, List<string>>> MainHash = new Dictionary<int, Dictionary<string, List<string>>>();
+        public readonly Dictionary<int, Dictionary<string, HashSet<string>>> MainHash = new Dictionary<int, Dictionary<string, HashSet<string>>>();
 
         public void AddWord(string newWord)
         {
@@ -19,8 +19,7 @@ namespace Anagram
                 }
                 else
                 {
-                    // add new length to the hash
-                    var subHash = new Dictionary<string, List<string>>();
+                    var subHash = new Dictionary<string, HashSet<string>>();
 
                     AddWordToSubHash(newWord, subHash);
                     MainHash.Add(newWordLength, subHash);
@@ -28,7 +27,7 @@ namespace Anagram
             }
         }
 
-        private static void AddWordToSubHash(string newWord, Dictionary<string, List<string>> subHash)
+        private static void AddWordToSubHash(string newWord, Dictionary<string, HashSet<string>> subHash)
         {
             if (subHash == null)
             {
@@ -39,16 +38,16 @@ namespace Anagram
 
             if (subHash.ContainsKey(newWordHashKey))
             {
-                var list = subHash[newWordHashKey];
+                var hashSet = subHash[newWordHashKey];
 
-                if (!list.Contains(newWord))
+                if (!hashSet.Contains(newWord))
                 {
-                    list.Add(newWord);
+                    hashSet.Add(newWord);
                 }
             }
             else
             {
-                subHash.Add(newWordHashKey, new List<string> { newWord });
+                subHash.Add(newWordHashKey, new HashSet<string> { newWord });
             }
         }
 

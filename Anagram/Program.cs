@@ -33,6 +33,7 @@ namespace Anagram
                 testData.WordsFiltered = anagram.WordsFiltered;
                 testData.NodesAdded = anagram.NumNodes;
                 testData.TotalTime = anagram.TotalTime;
+                testData.Md5Comparisons = anagram.NumMd5HashKeyComparisons;
             }
 
             if (TestDataList.All(x => x.TestPassed))
@@ -41,7 +42,7 @@ namespace Anagram
             }
 
             TablePrinter.PrintLine();
-            TablePrinter.PrintRow("Test #", "Result", "Total Time", "Words Filtered", "Nodes Added");
+            TablePrinter.PrintRow("Test #", "Result", "Total Time", "Words Filtered", "Nodes Added", "MD5 Comparisons");
             TablePrinter.PrintLine();
 
             foreach (var testData in TestDataList)
@@ -51,7 +52,8 @@ namespace Anagram
                     testData.TestPassed ? " Passed " : "*Failed*",
                     testData.TotalTime.ToString(),
                     testData.WordsFiltered.ToString("n0"),
-                    testData.NodesAdded.ToString("n0"));
+                    testData.NodesAdded.ToString("n0"),
+                    testData.Md5Comparisons.ToString("n0"));
             }
 
             TablePrinter.PrintLine();

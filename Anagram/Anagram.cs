@@ -28,7 +28,7 @@ namespace Anagram
         /// <summary>
         /// Number of time the MD5 has was used in a comparison.
         /// </summary>
-        private int NumMd5HashKeyComparisons { get; set; }
+        public int NumMd5HashKeyComparisons { get; set; }
 
         /// <summary>
         /// String that will hold the secret phrase if it is found.
@@ -98,9 +98,9 @@ namespace Anagram
         /// <summary>
         /// Distinct list of words based on the criteria set by the hint phrase.
         /// </summary>
-        private List<string> DistinctWordList { get; set; }
+        private HashSet<string> DistinctWords { get; set; }
 
-        public int WordsFiltered => DistinctWordList.Count;
+        public int WordsFiltered => DistinctWords.Count;
 
         public WordHash WordHash;
 
@@ -174,7 +174,7 @@ namespace Anagram
             NumWords = (CharCountFromHint.ContainsKey(' ') ? CharCountFromHint[' '] : 0) + 1;
             SingleWordMaxLength = HintPhrase.Length - (NumWords - 1) - (CharCountFromHint.ContainsKey(' ') ? CharCountFromHint[' '] : 0);
 
-            MakeDistinctWordList();
+            GetDistinctWords();
             CreateWordHash();
             GetMaxPhraseLengths();
             GetMinPhraseLengths();
@@ -188,7 +188,7 @@ namespace Anagram
 
         private void ClearCollections()
         {
-            DistinctWordList = null;
+            DistinctWords = null;
             CharCountFromHint = null;
             WordHash = null;
             _maxPhraseLengths = null;
@@ -199,7 +199,7 @@ namespace Anagram
         {
             WordHash = new WordHash();
 
-            foreach (var word in DistinctWordList)
+            foreach (var word in DistinctWords)
             {
                 WordHash.AddWord(word);
             }
@@ -229,7 +229,7 @@ namespace Anagram
                 }
                 else if (i == NumWords - 1)
                 {
-                    minLength = HintPhrase.Length - (DistinctWordList.Any() ? DistinctWordList.Max(x => x.Length) + 1 : 0);
+                    minLength = HintPhrase.Length - (DistinctWords.Any() ? DistinctWords.Max(x => x.Length) + 1 : 0);
                 }
 
                 _minPhraseLengths[i] = minLength;
@@ -277,17 +277,16 @@ namespace Anagram
             return countDictionary;
         }
 
-        private void MakeDistinctWordList()
+        private void GetDistinctWords()
         {
             DistinctListStartTime = DateTime.Now;
-            DistinctWordList = new List<string>();
+            DistinctWords = new HashSet<string>();
 
-            foreach (var wordLower in File.ReadAllLines(InputFile).ToList().Select(word => word.Trim().ToLower()).Where(IsSubPhraseValid))
+            foreach (var wordLower in File.ReadAllLines(InputFile).ToList().Select(word => word.Trim().ToLower()).Where(IsSubPhraseValid).Where(wordLower => !DistinctWords.Contains(wordLower)))
             {
-                DistinctWordList.Add(wordLower);
+                DistinctWords.Add(wordLower);
             }
 
-            DistinctWordList = DistinctWordList.OrderByDescending(x => x.Length).ThenBy(x => x).Distinct().ToList();
             DistinctListEndTime = DateTime.Now;
         }
 
