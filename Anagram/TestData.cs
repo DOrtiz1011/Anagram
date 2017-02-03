@@ -12,7 +12,7 @@ namespace Anagram
         public string InputFile { get; private set; }
         private string ExpectedSecretPhrase { get; }
         public string ReturnedSecretPhrase { private get; set; }
-        public TimeSpan TotalTime { get; set; }
+        public TimeSpan? TotalTime { get; set; }
         public int WordsFiltered { get; set; }
         public int NodesAdded { get; set; }
 

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Anagram
@@ -8,7 +9,7 @@ namespace Anagram
         public static void AddNodes(Anagram anagram)
         {
             var queue = new Queue<Node>();
-            var stringBuilder = new StringBuilder(anagram.HintPhrase.Length);
+            var currentPhrase = new StringBuilder(anagram.HintPhrase.Length);
 
             queue.Enqueue(new Node(null, null, 0));   // add root node
             anagram.NumNodes++;
@@ -16,56 +17,76 @@ namespace Anagram
             while (queue.Count > 0)
             {
                 var currentNode = queue.Dequeue();
-                var currentPhrase = currentNode.GetFullPhrase();
                 var newWordNumber = currentNode.WordNumber + 1;
+                currentPhrase.Clear().Append(currentNode.GetFullPhrase());
 
-                stringBuilder.Clear().Append(currentPhrase);
-                var endIndexOfCurrentPhrase = stringBuilder.Length;
-
-                foreach (var keyWordListPair in anagram.WordHash)
+                if (currentPhrase.Length > 0 && newWordNumber < anagram.NumNodes)
                 {
-                    if (!string.IsNullOrEmpty(currentPhrase))
+                    currentPhrase.Append(" ");
+                }
+
+                foreach (var wordKeyKeyValuePair in anagram.WordHash.MainHash.Where(wordLengthKeyValuePair => anagram.CheckLength(wordLengthKeyValuePair.Key, newWordNumber, currentPhrase))
+                                                                             .SelectMany(wordLengthKeyValuePair => wordLengthKeyValuePair.Value))
+                {
+                    if (newWordNumber <= 1)
                     {
-                        stringBuilder.Append(" ");
+                        // No need to verify first word because all words were indivdually filtered
+                        EnqueWords(anagram, wordKeyKeyValuePair.Value, queue, currentNode, newWordNumber);
                     }
-
-                    stringBuilder.Append(keyWordListPair.Key);
-                    var lengthToRemove = stringBuilder.Length - endIndexOfCurrentPhrase;
-
-                    if (anagram.IsPhraseValid(stringBuilder.ToString(), newWordNumber))
+                    else
                     {
-                        // loop through each word that matches the key
-                        foreach (var newWord in keyWordListPair.Value)
+                        var endIndexOfCurrentPhrase = currentPhrase.Length;
+                        currentPhrase.Append(wordKeyKeyValuePair.Key);
+                        var lengthToRemove = currentPhrase.Length - endIndexOfCurrentPhrase;
+
+                        if (newWordNumber > 1 && newWordNumber < anagram.NumWords)
                         {
-                            if (newWordNumber == anagram.NumWords)
+                            // not the first word and not the last word so test with the hash key, if it passes that all words in its list are valid
+                            if (anagram.IsSubPhraseValid(currentPhrase.ToString()))
                             {
-                                stringBuilder.Remove(endIndexOfCurrentPhrase, lengthToRemove);
+                                EnqueWords(anagram, wordKeyKeyValuePair.Value, queue, currentNode, newWordNumber);
+                            }
 
-                                if (stringBuilder.Length > 0)
+                            currentPhrase.Remove(endIndexOfCurrentPhrase, lengthToRemove);
+                        }
+                        else if (newWordNumber == anagram.NumWords)
+                        {
+                            // last word
+                            if (anagram.IsPhraseAnagram(currentPhrase.ToString()))
+                            {
+                                currentPhrase.Remove(endIndexOfCurrentPhrase, lengthToRemove);
+
+                                foreach (var newWord in wordKeyKeyValuePair.Value)
                                 {
-                                    stringBuilder.Append(" ");
-                                }
+                                    currentPhrase.Append(newWord);
+                                    anagram.VerifyMd5Hash(currentPhrase.ToString());
 
-                                stringBuilder.Append(newWord);
+                                    if (anagram.SecretPhraseFound)
+                                    {
+                                        return;
+                                    }
 
-                                anagram.VerifyMd5Hash(stringBuilder.ToString());
-
-                                if (anagram.SecretPhraseFound)
-                                {
-                                    return;
+                                    currentPhrase.Remove(endIndexOfCurrentPhrase, lengthToRemove);
                                 }
                             }
-                            else if (newWordNumber < anagram.NumWords)
+                            else
                             {
-                                queue.Enqueue(new Node(newWord, currentNode, newWordNumber));
-                                anagram.NumNodes++;
+                                currentPhrase.Remove(endIndexOfCurrentPhrase, lengthToRemove);
                             }
                         }
                     }
-
-                    stringBuilder.Remove(endIndexOfCurrentPhrase, lengthToRemove);
                 }
+            }
+        }
+
+        private static void EnqueWords(Anagram anagram, IEnumerable<string> wordList, Queue<Node> queue, Node parentNode, int newWordNumber)
+        {
+            foreach (var newWord in wordList)
+            {
+                queue.Enqueue(new Node(newWord, parentNode, newWordNumber));
+                anagram.NumNodes++;
             }
         }
     }
 }
+

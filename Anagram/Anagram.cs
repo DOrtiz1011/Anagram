@@ -102,7 +102,7 @@ namespace Anagram
 
         public int WordsFiltered => DistinctWordList.Count;
 
-        public Dictionary<string, HashSet<string>> WordHash { get; private set; }
+        public WordHash WordHash;
 
         private int[] _maxPhraseLengths;
         private int[] _minPhraseLengths;
@@ -197,28 +197,12 @@ namespace Anagram
 
         private void CreateWordHash()
         {
-            WordHash = new Dictionary<string, HashSet<string>>();
+            WordHash = new WordHash();
 
             foreach (var word in DistinctWordList)
             {
-                var key = GetHashKey(word);
-
-                if (WordHash.ContainsKey(key))
-                {
-                    WordHash[key].Add(word);
-                }
-                else
-                {
-                    WordHash.Add(key, new HashSet<string> { word });
-                }
+                WordHash.AddWord(word);
             }
-        }
-
-        private static string GetHashKey(string word)
-        {
-            var charArray = word.ToCharArray();
-            Array.Sort(charArray);
-            return new string(charArray);
         }
 
         private void GetMaxPhraseLengths()
@@ -254,112 +238,19 @@ namespace Anagram
 
         private void CleanUp() => Dispose();
 
-        public bool IsPhraseValid(string word, int wordNumber)
-        {
-            var isValid = false;
-
-            if (wordNumber == NumWords)
-            {
-                isValid = IsPhraseAnagram(word);
-            }
-            else if (wordNumber > 1)
-            {
-                // wordNumber != 1 => words have already be individually filtered so no need to do it again
-                isValid = IsSubPhraseValid(word);
-            }
-            else if (wordNumber == 1)
-            {
-                isValid = true;
-            }
-
-            return isValid;
-        }
-
         /// <summary>
         /// Uses the hash table created from the hint phrase to exclude single words.
         /// </summary>
         /// <param name="word"></param>
         /// <returns></returns>
-        private bool IsSubPhraseValid(string word)
-        {
-            var invalid = true;
-
-            // word must be shorter than or equal to the length of the hint phrase
-            if (CheckLength(word))
-            {
-                if (GetCharCountFromString(word).Any(keyValuePair => !CharCountFromHint.ContainsKey(keyValuePair.Key) || CharCountFromHint[keyValuePair.Key] < keyValuePair.Value))
-                {
-                    invalid = false;
-                }
-            }
-            else
-            {
-                // word is too long
-                invalid = false;
-            }
-
-            return invalid;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="word"></param>
-        /// <returns></returns>
-        private bool CheckLength(string word)
-        {
-            bool valid;
-            var numWordsInString = word.Count(x => x == ' ') + 1;
-
-            if (string.IsNullOrEmpty(word))
-            {
-                return false;
-            }
-
-            if (numWordsInString == NumWords)
-            {
-                valid = word.Length == HintPhrase.Length;
-            }
-            else if (numWordsInString == 1)
-            {
-                valid = word.Length <= SingleWordMaxLength;
-            }
-            else if (numWordsInString == NumWords - 1)
-            {
-                valid = word.Length >= _minPhraseLengths[numWordsInString] && word.Length <= _maxPhraseLengths[numWordsInString];
-            }
-            else
-            {
-                valid = word.Length <= _maxPhraseLengths[numWordsInString];
-            }
-
-            return valid;
-        }
+        public bool IsSubPhraseValid(string word) => !GetCharCountFromString(word).Any(keyValuePair => !CharCountFromHint.ContainsKey(keyValuePair.Key) || CharCountFromHint[keyValuePair.Key] < keyValuePair.Value);
 
         /// <summary>
         /// Uses the hash table created from the hint phrase to exclude phrases.
         /// </summary>
         /// <param name="phrase"></param>
         /// <returns></returns>
-        private bool IsPhraseAnagram(string phrase)
-        {
-            var isAnagram = true;
-
-            // phrase must exactly match the length of the hint phrase
-            if (phrase.Length == HintPhrase.Length)
-            {
-                if (GetCharCountFromString(phrase).Any(keyValuePair => !CharCountFromHint.ContainsKey(keyValuePair.Key) || CharCountFromHint[keyValuePair.Key] != keyValuePair.Value))
-                {
-                    isAnagram = false;
-                }
-            }
-            else
-            {
-                isAnagram = false;
-            }
-
-            return isAnagram;
-        }
+        public bool IsPhraseAnagram(string phrase) => !GetCharCountFromString(phrase).Any(keyValuePair => !CharCountFromHint.ContainsKey(keyValuePair.Key) || CharCountFromHint[keyValuePair.Key] != keyValuePair.Value);
 
         /// <summary>
         /// Creates a hast table (Dictionary) from a string using the chars as keys and the number of times they appear as the value.
@@ -408,10 +299,9 @@ namespace Anagram
         /// <returns>MD5 hash key of the input string</returns>
         private string GetMd5Hash(string input)
         {
-            var byteArray = _md5Hash.ComputeHash(Encoding.UTF8.GetBytes(input));
             var stringBuilder = new StringBuilder();
 
-            foreach (var t in byteArray)
+            foreach (var t in _md5Hash.ComputeHash(Encoding.UTF8.GetBytes(input)))
             {
                 stringBuilder.Append(t.ToString("x2"));
             }
@@ -437,6 +327,33 @@ namespace Anagram
             SecretPhraseFound = true;
         }
 
+        /// <summary>
+        /// Verifies the length of a phrase
+        /// </summary>
+        /// <param name="newWordLength"></param>
+        /// <param name="wordNumber"></param>
+        /// <param name="currentPhrase"></param>
+        /// <returns></returns>
+        public bool CheckLength(int newWordLength, int wordNumber, StringBuilder currentPhrase)
+        {
+            var validLength = false;
+
+            if (wordNumber == 1)
+            {
+                validLength = true;
+            }
+            else if (wordNumber > 1 && wordNumber < NumWords)
+            {
+                validLength = newWordLength + currentPhrase.Length <= HintPhrase.Length;
+            }
+            else if (wordNumber == NumWords)
+            {
+                validLength = newWordLength + currentPhrase.Length == HintPhrase.Length;
+            }
+
+            return validLength;
+        }
+
         public void Dispose() => ((IDisposable)_md5Hash).Dispose();
 
         internal void PrintFullStats()
@@ -457,8 +374,7 @@ namespace Anagram
             stringBuilder.AppendLine(" |");
             stringBuilder.AppendLine($" | MD5 Comparisons:      {NumMd5HashKeyComparisons:n0}");
             stringBuilder.AppendLine(" |");
-            stringBuilder.AppendLine(SecretPhraseFound ? $" | Secret Phrase:        {SecretPhrase}"
-                : " | Secret phrase was not found.");
+            stringBuilder.AppendLine(SecretPhraseFound ? $" | Secret Phrase:        {SecretPhrase}" : " | Secret phrase was not found.");
             stringBuilder.AppendLine(" =========================================================");
 
             Console.WriteLine(stringBuilder.ToString());

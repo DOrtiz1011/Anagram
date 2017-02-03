@@ -6,17 +6,22 @@ namespace Anagram
 {
     internal static class Program
     {
+#if DEBUG
+        private const string Mode = "Debug";
+#else
+        private const string Mode = "Release";
+#endif
         private const string InputFile = "WordList.txt";
         //private const string InputFile = "WordListAllEnglishWords.txt";
 
         private static void Main()
         {
-            Console.WriteLine($"*** Tests Started {DateTime.Now} ***\n\n");
+            Console.WriteLine($"*** Tests Started {DateTime.Now} ***");
+            Console.WriteLine($"{Mode} Mode\n\n");
 
             var anagram = new Anagram();
-            var testsToRun = TestDataList; // All Tests
 
-            foreach (var testData in testsToRun)
+            foreach (var testData in TestDataList)
             {
                 Console.WriteLine($"{DateTime.Now}\tSTARTING TEST {testData.TestNumber}\n");
 
@@ -27,42 +32,33 @@ namespace Anagram
                 testData.ReturnedSecretPhrase = anagram.SecretPhrase;
                 testData.WordsFiltered = anagram.WordsFiltered;
                 testData.NodesAdded = anagram.NumNodes;
-
-                if (anagram.TotalTime != null)
-                {
-                    testData.TotalTime = anagram.TotalTime.Value;
-                }
+                testData.TotalTime = anagram.TotalTime;
             }
 
-            if (testsToRun.All(x => x.TestPassed))
+            if (TestDataList.All(x => x.TestPassed))
             {
                 Console.WriteLine("ALL TESTS PASSED\n");
             }
 
-            var headerRow = new[] { "Test #", "Result", "Total Time", "Words Filtered", "Nodes Added" };
-
             TablePrinter.PrintLine();
-            TablePrinter.PrintRow(headerRow);
+            TablePrinter.PrintRow("Test #", "Result", "Total Time", "Words Filtered", "Nodes Added");
             TablePrinter.PrintLine();
 
-            foreach (var testData in testsToRun)
+            foreach (var testData in TestDataList)
             {
                 TablePrinter.PrintRow(
                     testData.TestNumber.ToString(),
                     testData.TestPassed ? " Passed " : "*Failed*",
                     testData.TotalTime.ToString(),
-                    testData.WordsFiltered.ToString(),
-                    testData.NodesAdded.ToString());
+                    testData.WordsFiltered.ToString("n0"),
+                    testData.NodesAdded.ToString("n0"));
             }
 
             TablePrinter.PrintLine();
 
-            var doubleAverageTicks = testsToRun.Average(timeSpan => timeSpan.TotalTime.Ticks);
-            var longAverageTicks = Convert.ToInt64(doubleAverageTicks);
-            var averageTime = new TimeSpan(longAverageTicks);
-
-            Console.WriteLine($"\nAverage Time = {averageTime}");
-
+            Console.WriteLine($"\n{Mode} Mode");
+            Console.WriteLine($"Total Time   = {new TimeSpan(Convert.ToInt64(TestDataList.Sum(timeSpan => timeSpan.TotalTime?.Ticks)))}");
+            Console.WriteLine($"Average Time = {new TimeSpan(Convert.ToInt64(TestDataList.Average(timeSpan => timeSpan.TotalTime?.Ticks)))}");
             Console.WriteLine($"\n\n*** Tests Ended {DateTime.Now} ***\n");
             Console.ReadLine();
         }
