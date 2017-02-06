@@ -8,15 +8,15 @@ namespace Anagram
     {
         public static void AddNodes(Anagram anagram)
         {
-            var queue = new Queue<Node>();
+            var stack = new Stack<Node>();
             var currentPhrase = new StringBuilder(anagram.HintPhrase.Length);
 
-            queue.Enqueue(new Node(null, null, 0));   // add root node
+            stack.Push(new Node(null, null, 0));   // add root node
             anagram.NumNodes++;
 
-            while (queue.Count > 0)
+            while (stack.Count > 0)
             {
-                var currentNode = queue.Dequeue();
+                var currentNode = stack.Pop();
                 var newWordNumber = currentNode.WordNumber + 1;
                 currentPhrase.Clear().Append(currentNode.GetFullPhrase());
 
@@ -33,7 +33,7 @@ namespace Anagram
                     if (newWordNumber <= 1)
                     {
                         // No need to verify first word because all words were indivdually filtered
-                        EnqueWords(anagram, wordKeyKeyValuePair.Value, queue, currentNode, newWordNumber);
+                        EnqueWords(anagram, wordKeyKeyValuePair.Value, stack, currentNode, newWordNumber);
                     }
                     else
                     {
@@ -45,7 +45,7 @@ namespace Anagram
                             // not the first word and not the last word so test with the hash key, if it passes that all words in its list are valid
                             if (anagram.IsSubPhraseValid(currentPhrase.ToString()))
                             {
-                                EnqueWords(anagram, wordKeyKeyValuePair.Value, queue, currentNode, newWordNumber);
+                                EnqueWords(anagram, wordKeyKeyValuePair.Value, stack, currentNode, newWordNumber);
                             }
 
                             currentPhrase.Remove(endIndexOfCurrentPhrase, lengthToRemove);
@@ -80,11 +80,11 @@ namespace Anagram
             }
         }
 
-        private static void EnqueWords(Anagram anagram, IEnumerable<string> wordList, Queue<Node> queue, Node parentNode, int newWordNumber)
+        private static void EnqueWords(Anagram anagram, IEnumerable<string> wordList, Stack<Node> stack, Node parentNode, int newWordNumber)
         {
             foreach (var newWord in wordList)
             {
-                queue.Enqueue(new Node(newWord, parentNode, newWordNumber));
+                stack.Push(new Node(newWord, parentNode, newWordNumber));
                 anagram.NumNodes++;
             }
         }
