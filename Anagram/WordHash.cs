@@ -38,12 +38,7 @@ namespace Anagram
 
             if (subHash.ContainsKey(newWordHashKey))
             {
-                var hashSet = subHash[newWordHashKey];
-
-                if (!hashSet.Contains(newWord))
-                {
-                    hashSet.Add(newWord);
-                }
+                subHash[newWordHashKey].Add(newWord);
             }
             else
             {

@@ -282,7 +282,7 @@ namespace Anagram
             DistinctListStartTime = DateTime.Now;
             DistinctWords = new HashSet<string>();
 
-            foreach (var wordLower in File.ReadAllLines(InputFile).ToList().Select(word => word.Trim().ToLower()).Where(IsSubPhraseValid).Where(wordLower => !DistinctWords.Contains(wordLower)))
+            foreach (var wordLower in File.ReadAllLines(InputFile).ToList().Select(word => word.Trim().ToLower()).Where(IsSubPhraseValid))
             {
                 DistinctWords.Add(wordLower);
             }
