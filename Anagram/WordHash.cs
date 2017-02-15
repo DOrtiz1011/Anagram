@@ -11,18 +11,16 @@ namespace Anagram
         {
             if (!string.IsNullOrEmpty(newWord))
             {
-                var newWordLength = newWord.Length;
-
-                if (MainHash.ContainsKey(newWordLength))
+                if (MainHash.ContainsKey(newWord.Length))
                 {
-                    AddWordToSubHash(newWord, MainHash[newWordLength]);
+                    AddWordToSubHash(newWord, MainHash[newWord.Length]);
                 }
                 else
                 {
                     var subHash = new Dictionary<string, HashSet<string>>();
 
                     AddWordToSubHash(newWord, subHash);
-                    MainHash.Add(newWordLength, subHash);
+                    MainHash.Add(newWord.Length, subHash);
                 }
             }
         }

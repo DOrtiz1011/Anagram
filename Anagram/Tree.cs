@@ -33,7 +33,7 @@ namespace Anagram
                     if (newWordNumber <= 1)
                     {
                         // No need to verify first word because all words were indivdually filtered
-                        EnqueWords(anagram, wordKeyKeyValuePair.Value, stack, currentNode, newWordNumber);
+                        AddWords(anagram, wordKeyKeyValuePair.Value, stack, currentNode, newWordNumber);
                     }
                     else
                     {
@@ -45,7 +45,7 @@ namespace Anagram
                             // not the first word and not the last word so test with the hash key, if it passes that all words in its list are valid
                             if (anagram.IsSubPhraseValid(currentPhrase.ToString()))
                             {
-                                EnqueWords(anagram, wordKeyKeyValuePair.Value, stack, currentNode, newWordNumber);
+                                AddWords(anagram, wordKeyKeyValuePair.Value, stack, currentNode, newWordNumber);
                             }
 
                             currentPhrase.Remove(endIndexOfCurrentPhrase, lengthToRemove);
@@ -80,11 +80,11 @@ namespace Anagram
             }
         }
 
-        private static void EnqueWords(Anagram anagram, IEnumerable<string> wordList, Stack<Node> stack, Node parentNode, int newWordNumber)
+        private static void AddWords(Anagram anagram, IEnumerable<string> words, Stack<Node> stack, Node parentNode, int wordNumber)
         {
-            foreach (var newWord in wordList)
+            foreach (var word in words)
             {
-                stack.Push(new Node(newWord, parentNode, newWordNumber));
+                stack.Push(new Node(word, parentNode, wordNumber));
                 anagram.NumNodes++;
             }
         }

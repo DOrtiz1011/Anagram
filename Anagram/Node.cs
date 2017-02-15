@@ -21,12 +21,12 @@ namespace Anagram
         {
             string fullPhrase;
             var stack = new Stack<string>();
-            var tempNode = ParentNode;
+            var node = ParentNode;
 
-            while (tempNode != null && tempNode.WordNumber != 0)
+            while (node != null && node.WordNumber != 0)
             {
-                stack.Push(tempNode.Word);
-                tempNode = tempNode.ParentNode;
+                stack.Push(node.Word);
+                node = node.ParentNode;
             }
 
             if (stack.Any())
