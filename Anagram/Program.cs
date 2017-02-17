@@ -16,8 +16,7 @@ namespace Anagram
 
         private static void Main()
         {
-            Console.WriteLine($"*** Tests Started {DateTime.Now} ***");
-            Console.WriteLine($"{Mode} Mode\n\n");
+            Console.WriteLine($"*** Tests Started {DateTime.Now} - {Mode} Mode ***\n\n");
 
             var anagram = new Anagram();
 
@@ -58,12 +57,11 @@ namespace Anagram
 
             TablePrinter.PrintLine();
 
-            Console.WriteLine($"\n{Mode} Mode");
-            Console.WriteLine($"Max Time     = {new TimeSpan(Convert.ToInt64(TestDataList.Max(timeSpan => timeSpan.TotalTime?.Ticks)))}");
             Console.WriteLine($"Min Time     = {new TimeSpan(Convert.ToInt64(TestDataList.Min(timeSpan => timeSpan.TotalTime?.Ticks)))}");
+            Console.WriteLine($"Max Time     = {new TimeSpan(Convert.ToInt64(TestDataList.Max(timeSpan => timeSpan.TotalTime?.Ticks)))}");
             Console.WriteLine($"Total Time   = {new TimeSpan(Convert.ToInt64(TestDataList.Sum(timeSpan => timeSpan.TotalTime?.Ticks)))}");
             Console.WriteLine($"Average Time = {new TimeSpan(Convert.ToInt64(TestDataList.Average(timeSpan => timeSpan.TotalTime?.Ticks)))}");
-            Console.WriteLine($"\n\n*** Tests Ended {DateTime.Now} ***\n");
+            Console.WriteLine($"\n\n*** Tests Ended {DateTime.Now} - {Mode} Mode ***");
             Console.ReadLine();
         }
 
