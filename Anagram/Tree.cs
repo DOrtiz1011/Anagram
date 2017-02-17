@@ -35,7 +35,11 @@ namespace Anagram
                             if (newWordNumber <= 1)
                             {
                                 // No need to verify first word because all words were indivdually filtered
-                                AddWords(anagram, wordKeyKeyValuePair.Value, stack, currentNode, newWordNumber);
+                                foreach (var word in wordKeyKeyValuePair.Value)
+                                {
+                                    stack.Push(new Node(word, currentNode, newWordNumber));
+                                    anagram.NumNodes++;
+                                }
                             }
                             else
                             {
@@ -47,7 +51,11 @@ namespace Anagram
                                     // not the first word and not the last word so test with the hash key, if it passes that all words in its list are valid
                                     if (anagram.IsSubPhraseValid(currentPhrase.ToString()))
                                     {
-                                        AddWords(anagram, wordKeyKeyValuePair.Value, stack, currentNode, newWordNumber);
+                                        foreach (var word in wordKeyKeyValuePair.Value)
+                                        {
+                                            stack.Push(new Node(word, currentNode, newWordNumber));
+                                            anagram.NumNodes++;
+                                        }
                                     }
 
                                     currentPhrase.Remove(endIndexOfCurrentPhrase, lengthToRemove);
@@ -83,15 +91,5 @@ namespace Anagram
                 }
             }
         }
-
-        private static void AddWords(Anagram anagram, IEnumerable<string> words, Stack<Node> stack, Node parentNode, int wordNumber)
-        {
-            foreach (var word in words)
-            {
-                stack.Push(new Node(word, parentNode, wordNumber));
-                anagram.NumNodes++;
-            }
-        }
     }
 }
-

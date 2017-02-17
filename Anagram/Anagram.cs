@@ -229,7 +229,7 @@ namespace Anagram
                 }
                 else if (i == NumWords - 1)
                 {
-                    minLength = HintPhrase.Length - (DistinctWords.Any() ? DistinctWords.Max(x => x.Length) + 1 : 0);
+                    minLength = HintPhrase.Length - (DistinctWords.Count > 0 ? DistinctWords.Max(x => x.Length) + 1 : 0);
                 }
 
                 _minPhraseLengths[i] = minLength;
@@ -243,14 +243,40 @@ namespace Anagram
         /// </summary>
         /// <param name="word"></param>
         /// <returns></returns>
-        public bool IsSubPhraseValid(string word) => !GetCharCountFromString(word).Any(keyValuePair => !CharCountFromHint.ContainsKey(keyValuePair.Key) || CharCountFromHint[keyValuePair.Key] < keyValuePair.Value);
+        public bool IsSubPhraseValid(string word)
+        {
+            var charCount = GetCharCountFromString(word);
+
+            foreach (var keyValuePair in charCount)
+            {
+                if (!CharCountFromHint.ContainsKey(keyValuePair.Key) || CharCountFromHint[keyValuePair.Key] < keyValuePair.Value)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
 
         /// <summary>
         /// Uses the hash table created from the hint phrase to exclude phrases.
         /// </summary>
         /// <param name="phrase"></param>
         /// <returns></returns>
-        public bool IsPhraseAnagram(string phrase) => !GetCharCountFromString(phrase).Any(keyValuePair => !CharCountFromHint.ContainsKey(keyValuePair.Key) || CharCountFromHint[keyValuePair.Key] != keyValuePair.Value);
+        public bool IsPhraseAnagram(string phrase)
+        {
+            var charCount = GetCharCountFromString(phrase);
+
+            foreach (var keyValuePair in charCount)
+            {
+                if (!CharCountFromHint.ContainsKey(keyValuePair.Key) || CharCountFromHint[keyValuePair.Key] != keyValuePair.Value)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
 
         /// <summary>
         /// Creates a hast table (Dictionary) from a string using the chars as keys and the number of times they appear as the value.
@@ -282,9 +308,12 @@ namespace Anagram
             DistinctListStartTime = DateTime.Now;
             DistinctWords = new HashSet<string>();
 
-            foreach (var wordLower in File.ReadAllLines(InputFile).ToList().Select(word => word.Trim().ToLower()).Where(IsSubPhraseValid))
+            foreach (var word in File.ReadAllLines(InputFile))
             {
-                DistinctWords.Add(wordLower);
+                if (IsSubPhraseValid(word))
+                {
+                    DistinctWords.Add(word);
+                }
             }
 
             DistinctListEndTime = DateTime.Now;
