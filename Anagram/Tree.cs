@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace Anagram
@@ -27,52 +26,57 @@ namespace Anagram
 
                 var endIndexOfCurrentPhrase = currentPhrase.Length;
 
-                foreach (var wordKeyKeyValuePair in anagram.WordHash.MainHash.Where(wordLengthKeyValuePair => anagram.CheckLength(wordLengthKeyValuePair.Key, newWordNumber, endIndexOfCurrentPhrase))
-                                                                             .SelectMany(wordLengthKeyValuePair => wordLengthKeyValuePair.Value))
+                foreach (var wordLengthKeyValuePair in anagram.WordHash.MainHash)
                 {
-                    if (newWordNumber <= 1)
+                    if (anagram.CheckLength(wordLengthKeyValuePair.Key, newWordNumber, endIndexOfCurrentPhrase))
                     {
-                        // No need to verify first word because all words were indivdually filtered
-                        AddWords(anagram, wordKeyKeyValuePair.Value, stack, currentNode, newWordNumber);
-                    }
-                    else
-                    {
-                        currentPhrase.Append(wordKeyKeyValuePair.Key);
-                        var lengthToRemove = currentPhrase.Length - endIndexOfCurrentPhrase;
-
-                        if (newWordNumber > 1 && newWordNumber < anagram.NumWords)
+                        foreach (var wordKeyKeyValuePair in wordLengthKeyValuePair.Value)
                         {
-                            // not the first word and not the last word so test with the hash key, if it passes that all words in its list are valid
-                            if (anagram.IsSubPhraseValid(currentPhrase.ToString()))
+                            if (newWordNumber <= 1)
                             {
+                                // No need to verify first word because all words were indivdually filtered
                                 AddWords(anagram, wordKeyKeyValuePair.Value, stack, currentNode, newWordNumber);
                             }
-
-                            currentPhrase.Remove(endIndexOfCurrentPhrase, lengthToRemove);
-                        }
-                        else if (newWordNumber == anagram.NumWords)
-                        {
-                            // last word
-                            if (anagram.IsPhraseAnagram(currentPhrase.ToString()))
+                            else
                             {
-                                currentPhrase.Remove(endIndexOfCurrentPhrase, lengthToRemove);
+                                currentPhrase.Append(wordKeyKeyValuePair.Key);
+                                var lengthToRemove = currentPhrase.Length - endIndexOfCurrentPhrase;
 
-                                foreach (var newWord in wordKeyKeyValuePair.Value)
+                                if (newWordNumber > 1 && newWordNumber < anagram.NumWords)
                                 {
-                                    currentPhrase.Append(newWord);
-                                    anagram.VerifyMd5Hash(currentPhrase.ToString());
-
-                                    if (anagram.SecretPhraseFound)
+                                    // not the first word and not the last word so test with the hash key, if it passes that all words in its list are valid
+                                    if (anagram.IsSubPhraseValid(currentPhrase.ToString()))
                                     {
-                                        return;
+                                        AddWords(anagram, wordKeyKeyValuePair.Value, stack, currentNode, newWordNumber);
                                     }
 
                                     currentPhrase.Remove(endIndexOfCurrentPhrase, lengthToRemove);
                                 }
-                            }
-                            else
-                            {
-                                currentPhrase.Remove(endIndexOfCurrentPhrase, lengthToRemove);
+                                else if (newWordNumber == anagram.NumWords)
+                                {
+                                    // last word
+                                    if (anagram.IsPhraseAnagram(currentPhrase.ToString()))
+                                    {
+                                        currentPhrase.Remove(endIndexOfCurrentPhrase, lengthToRemove);
+
+                                        foreach (var newWord in wordKeyKeyValuePair.Value)
+                                        {
+                                            currentPhrase.Append(newWord);
+                                            anagram.VerifyMd5Hash(currentPhrase.ToString());
+
+                                            if (anagram.SecretPhraseFound)
+                                            {
+                                                return;
+                                            }
+
+                                            currentPhrase.Remove(endIndexOfCurrentPhrase, lengthToRemove);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        currentPhrase.Remove(endIndexOfCurrentPhrase, lengthToRemove);
+                                    }
+                                }
                             }
                         }
                     }

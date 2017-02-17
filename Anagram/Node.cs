@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace Anagram
@@ -29,7 +28,7 @@ namespace Anagram
                 node = node.ParentNode;
             }
 
-            if (stack.Any())
+            if (stack.Count > 0)
             {
                 var stringBuilder = new StringBuilder();
 
