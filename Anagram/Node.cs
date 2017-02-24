@@ -6,17 +6,17 @@ namespace Anagram
     internal sealed class Node
     {
         private string Word { get; }
-        internal int WordNumber { get; }
+        public int WordNumber { get; }
         private Node ParentNode { get; }
 
-        internal Node(string word, Node parentNode, int wordNumber)
+        public Node(string word, Node parentNode, int wordNumber)
         {
             Word = word;
             ParentNode = parentNode;
             WordNumber = wordNumber;
         }
 
-        internal string GetFullPhrase()
+        public string GetFullPhrase(int phraseLength)
         {
             string fullPhrase;
             var stack = new Stack<string>();
@@ -30,7 +30,7 @@ namespace Anagram
 
             if (stack.Count > 0)
             {
-                var stringBuilder = new StringBuilder();
+                var stringBuilder = new StringBuilder(phraseLength);
 
                 while (stack.Count > 0)
                 {

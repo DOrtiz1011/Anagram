@@ -17,7 +17,7 @@ namespace Anagram
             {
                 var currentNode = stack.Pop();
                 var newWordNumber = currentNode.WordNumber + 1;
-                currentPhrase.Clear().Append(currentNode.GetFullPhrase());
+                currentPhrase.Clear().Append(currentNode.GetFullPhrase(anagram.HintPhrase.Length));
 
                 if (currentPhrase.Length > 0 && newWordNumber < anagram.NumNodes)
                 {
