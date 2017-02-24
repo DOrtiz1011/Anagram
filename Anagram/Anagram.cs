@@ -31,7 +31,7 @@ namespace Anagram
         public int NumWords { get; private set; }
         public int NumNodes { get; set; }
 
-        public TimeSpan? TotalTime => EndTime != null && StartTime != null ? EndTime.Value - StartTime.Value : default(TimeSpan?);
+        public TimeSpan? TotalTime => EndTime.HasValue && StartTime.HasValue ? EndTime.Value - StartTime.Value : default(TimeSpan?);
 
         public int WordsFiltered => DistinctWords.Count;
 
