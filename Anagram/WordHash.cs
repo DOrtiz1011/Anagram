@@ -27,11 +27,6 @@ namespace Anagram
 
         private static void AddWordToSubHash(string newWord, Dictionary<string, HashSet<string>> subHash)
         {
-            if (subHash == null)
-            {
-                throw new ArgumentNullException(nameof(subHash), "Sub hash is null.");
-            }
-
             var newWordHashKey = GetHashKey(newWord);
 
             if (subHash.ContainsKey(newWordHashKey))
