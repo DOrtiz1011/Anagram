@@ -16,9 +16,9 @@ namespace Anagram
 
         private static readonly List<TestData> TestDataList = new List<TestData>
         {
-            new TestData("poultry outwits ants", "e4820b45d2277f3844eac66c903e84be", InputFile),
-            new TestData("poultry outwits ants", "23170acc097c24edb98fc5488ab033fe", InputFile),
-            new TestData("poultry outwits ants", "665e5bcb0c20062fe8abaaf4628bb154", InputFile)
+            new TestData("poultry outwits ants", "e4820b45d2277f3844eac66c903e84be"),
+            new TestData("poultry outwits ants", "23170acc097c24edb98fc5488ab033fe"),
+            new TestData("poultry outwits ants", "665e5bcb0c20062fe8abaaf4628bb154")
         };
 
         private static void Main()
@@ -30,7 +30,7 @@ namespace Anagram
 
             foreach (var testData in TestDataList)
             {
-                anagram.FindSecretPhrase(testData.HintPhrase, testData.Md5HashKey, testData.InputFile);
+                anagram.FindSecretPhrase(testData.HintPhrase, testData.Md5HashKey, InputFile);
 
                 var secretPhrase = !string.IsNullOrEmpty(anagram.SecretPhrase) ? anagram.SecretPhrase : "** NOT FOUND **";
 
