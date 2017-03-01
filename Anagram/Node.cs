@@ -19,17 +19,22 @@ namespace Anagram
         public string GetFullPhrase(int phraseLength)
         {
             string fullPhrase;
-            var stack = new Stack<string>();
-            var node = ParentNode;
 
-            while (node != null && node.WordNumber != 0)
+            if (WordNumber == 1)
             {
-                stack.Push(node.Word);
-                node = node.ParentNode;
+                fullPhrase = Word;
             }
-
-            if (stack.Count > 0)
+            else
             {
+                var stack = new Stack<string>();
+                var node = ParentNode;
+
+                while (node != null && node.WordNumber != 0)
+                {
+                    stack.Push(node.Word);
+                    node = node.ParentNode;
+                }
+
                 var stringBuilder = new StringBuilder(phraseLength);
 
                 while (stack.Count > 0)
@@ -38,10 +43,6 @@ namespace Anagram
                 }
 
                 fullPhrase = stringBuilder.Append(Word).ToString();
-            }
-            else
-            {
-                fullPhrase = Word;
             }
 
             return fullPhrase;

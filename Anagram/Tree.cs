@@ -32,7 +32,7 @@ namespace Anagram
                     {
                         foreach (var wordKeyKeyValuePair in wordLengthKeyValuePair.Value)
                         {
-                            if (newWordNumber <= 1)
+                            if (newWordNumber == 1)
                             {
                                 // No need to verify first word because all words were indivdually filtered
                                 foreach (var word in wordKeyKeyValuePair.Value)

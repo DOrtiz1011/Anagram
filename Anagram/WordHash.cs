@@ -25,7 +25,7 @@ namespace Anagram
             }
         }
 
-        private static void AddWordToSubHash(string newWord, Dictionary<string, HashSet<string>> subHash)
+        private static void AddWordToSubHash(string newWord, IDictionary<string, HashSet<string>> subHash)
         {
             var newWordHashKey = GetHashKey(newWord);
 
