@@ -6,14 +6,14 @@ using System.Text;
 
 namespace Anagram
 {
-    internal sealed class Anagram : IDisposable
+    public sealed class Anagram : IDisposable
     {
         private MD5 _md5Hash;
         private int[] _maxPhraseLengths;
         private int[] _minPhraseLengths;
         private readonly StringBuilder _stringBuilder = new StringBuilder(32);
 
-        public WordHash WordHash;
+        internal WordHash WordHash;
 
         private int SingleWordMaxLength { get; set; }
         private Dictionary<char, int> CharCountFromHint { get; set; }
