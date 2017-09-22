@@ -4,8 +4,8 @@ namespace Anagram
 {
     internal sealed class TestData
     {
-        public string HintPhrase { get; private set; }
-        public string Md5HashKey { get; private set; }
+        public string HintPhrase { get; }
+        public string Md5HashKey { get; }
         public TimeSpan? TotalTime { get; set; }
 
         public TestData(string hintPhrase, string md5HashKey)

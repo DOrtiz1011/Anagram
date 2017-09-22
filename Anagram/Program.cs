@@ -34,26 +34,36 @@ namespace Anagram
 
                 var secretPhrase = !string.IsNullOrEmpty(anagram.SecretPhrase) ? anagram.SecretPhrase : "** NOT FOUND **";
 
-                Console.WriteLine($"Secret Phrase = {secretPhrase}");
-                Console.WriteLine($"Total Time    = {anagram.TotalTime}");
-                Console.WriteLine($"Hint Phrase   = {anagram.HintPhrase}");
-                Console.WriteLine($"MD5 Hash Key  = {anagram.Md5HashKey}");
-                Console.WriteLine($"Words         = {anagram.WordsFiltered:n0}");
-                Console.WriteLine($"Nodes         = {anagram.NumNodes:n0}");
-                Console.WriteLine($"Comparisons   = {anagram.NumMd5HashKeyComparisons:n0}");
-                Console.WriteLine();
-
+                PrintTestResults(secretPhrase, anagram);
                 testData.TotalTime = anagram.TotalTime;
             }
 
+            PrintTimeStats();
+
+            Console.WriteLine($"*** Tests Ended {DateTime.Now} - {Mode} Mode ***");
+            Console.ReadLine();
+        }
+
+        private static void PrintTestResults(string secretPhrase, Anagram anagram)
+        {
+            Console.WriteLine($"Secret Phrase = {secretPhrase}");
+            Console.WriteLine($"Total Time    = {anagram.TotalTime}");
+            Console.WriteLine($"Hint Phrase   = {anagram.HintPhrase}");
+            Console.WriteLine($"MD5 Hash Key  = {anagram.Md5HashKey}");
+            Console.WriteLine($"Words         = {anagram.WordsFiltered:n0}");
+            Console.WriteLine($"Nodes         = {anagram.NumNodes:n0}");
+            Console.WriteLine($"Comparisons   = {anagram.NumMd5HashKeyComparisons:n0}");
+            Console.WriteLine();
+        }
+
+        private static void PrintTimeStats()
+        {
             Console.WriteLine();
             Console.WriteLine($"Min Time     = {new TimeSpan(Convert.ToInt64(TestDataList.Min(timeSpan => timeSpan.TotalTime?.Ticks)))}");
             Console.WriteLine($"Max Time     = {new TimeSpan(Convert.ToInt64(TestDataList.Max(timeSpan => timeSpan.TotalTime?.Ticks)))}");
             Console.WriteLine($"Total Time   = {new TimeSpan(Convert.ToInt64(TestDataList.Sum(timeSpan => timeSpan.TotalTime?.Ticks)))}");
             Console.WriteLine($"Average Time = {new TimeSpan(Convert.ToInt64(TestDataList.Average(timeSpan => timeSpan.TotalTime?.Ticks)))}");
             Console.WriteLine();
-            Console.WriteLine($"*** Tests Ended {DateTime.Now} - {Mode} Mode ***");
-            Console.ReadLine();
         }
     }
 }
