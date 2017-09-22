@@ -12,6 +12,7 @@ http://followthewhiterabbit.trustpilot.com/cs/step3.html
 - This solution can handle any number of words. Many people have come up with solutions that assume there will always be three words.
 - To get the fastest possible execution time you must run this in release mode. Debug mode has some overhead that slows down the algorithm.
 - The three test cases here are from the original problem. Adding more will include them to the total and average times.
+- The original word list provided is in this repository. I also include a list of all words withing the English language for testing. The correct solution is found but takes much longer. The third test case takes about 13 minutes to determine that the secret phrase does not exist.
 
 ## Sample Output
 ```
