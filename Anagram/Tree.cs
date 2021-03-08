@@ -34,7 +34,7 @@ namespace Anagram
                         {
                             if (newWordNumber == 1)
                             {
-                                // No need to verify first word because all words were indivdually filtered
+                                // No need to verify first word because all words were individually filtered
                                 foreach (var word in wordKeyKeyValuePair.Value)
                                 {
                                     stack.Push(new Node(word, currentNode, newWordNumber));
