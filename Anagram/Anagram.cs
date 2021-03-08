@@ -8,10 +8,10 @@ namespace Anagram
 {
     public sealed class Anagram : IDisposable
     {
-        private MD5 _md5Hash;
-        private int[] _maxPhraseLengths;
-        private int[] _minPhraseLengths;
-        private readonly StringBuilder _stringBuilder = new StringBuilder(32);
+        private MD5 _Md5Hash;
+        private int[] _MaxPhraseLengths;
+        private int[] _MinPhraseLengths;
+        private readonly StringBuilder _StringBuilder = new StringBuilder(32);
 
         internal WordHash WordHash;
 
@@ -78,7 +78,7 @@ namespace Anagram
             GetMaxPhraseLengths();
             GetMinPhraseLengths();
 
-            _md5Hash = MD5.Create();
+            _Md5Hash = MD5.Create();
             SecretPhrase = null;
             SecretPhraseFound = false;
             NumNodes = 0;
@@ -90,8 +90,8 @@ namespace Anagram
             DistinctWords = null;
             CharCountFromHint = null;
             WordHash = null;
-            _maxPhraseLengths = null;
-            _minPhraseLengths = null;
+            _MaxPhraseLengths = null;
+            _MinPhraseLengths = null;
         }
 
         private void CreateWordHash()
@@ -106,17 +106,17 @@ namespace Anagram
 
         private void GetMaxPhraseLengths()
         {
-            _maxPhraseLengths = new int[NumWords + 1];
+            _MaxPhraseLengths = new int[NumWords + 1];
 
-            for (var i = 1; i < _maxPhraseLengths.Length; i++)
+            for (var i = 1; i < _MaxPhraseLengths.Length; i++)
             {
-                _maxPhraseLengths[i] = SingleWordMaxLength + (i - 1) * 2;
+                _MaxPhraseLengths[i] = SingleWordMaxLength + (i - 1) * 2;
             }
         }
 
         private void GetMinPhraseLengths()
         {
-            _minPhraseLengths = new int[NumWords + 1];
+            _MinPhraseLengths = new int[NumWords + 1];
 
             for (var i = NumWords; i > 0; i--)
             {
@@ -131,7 +131,7 @@ namespace Anagram
                     minLength = HintPhrase.Length - (LongestWordLength + 1);
                 }
 
-                _minPhraseLengths[i] = minLength;
+                _MinPhraseLengths[i] = minLength;
             }
         }
 
@@ -206,14 +206,14 @@ namespace Anagram
 
         private string GetMd5Hash(string input)
         {
-            _stringBuilder.Clear();
+            _StringBuilder.Clear();
 
-            foreach (var t in _md5Hash.ComputeHash(Encoding.UTF8.GetBytes(input)))
+            foreach (var t in _Md5Hash.ComputeHash(Encoding.UTF8.GetBytes(input)))
             {
-                _stringBuilder.Append(t.ToString("x2"));
+                _StringBuilder.Append(t.ToString("x2"));
             }
 
-            return _stringBuilder.ToString();
+            return _StringBuilder.ToString();
         }
 
         public void VerifyMd5Hash(string input)
@@ -243,7 +243,7 @@ namespace Anagram
 
                 if (wordNumber > 1 && wordNumber < NumWords)
                 {
-                    validLength = phraseLength <= _maxPhraseLengths[wordNumber] && phraseLength >= _minPhraseLengths[wordNumber];
+                    validLength = phraseLength <= _MaxPhraseLengths[wordNumber] && phraseLength >= _MinPhraseLengths[wordNumber];
                 }
                 else if (wordNumber == NumWords)
                 {
@@ -254,6 +254,6 @@ namespace Anagram
             return validLength;
         }
 
-        public void Dispose() => ((IDisposable)_md5Hash).Dispose();
+        public void Dispose() => ((IDisposable)_Md5Hash).Dispose();
     }
 }
