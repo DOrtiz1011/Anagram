@@ -141,9 +141,9 @@ namespace Anagram
         {
             var charCount = GetCharCountFromString(word);
 
-            foreach (var keyValuePair in charCount)
+            foreach (var (key, value) in charCount)
             {
-                if (!CharCountFromHint.ContainsKey(keyValuePair.Key) || CharCountFromHint[keyValuePair.Key] < keyValuePair.Value)
+                if (!CharCountFromHint.ContainsKey(key) || CharCountFromHint[key] < value)
                 {
                     return false;
                 }
@@ -156,9 +156,9 @@ namespace Anagram
         {
             var charCount = GetCharCountFromString(phrase);
 
-            foreach (var keyValuePair in charCount)
+            foreach (var (key, value) in charCount)
             {
-                if (!CharCountFromHint.ContainsKey(keyValuePair.Key) || CharCountFromHint[keyValuePair.Key] != keyValuePair.Value)
+                if (!CharCountFromHint.ContainsKey(key) || CharCountFromHint[key] != value)
                 {
                     return false;
                 }

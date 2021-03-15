@@ -15,8 +15,9 @@ namespace Anagram
 
             while (stack.Count > 0)
             {
-                var currentNode = stack.Pop();
+                var currentNode   = stack.Pop();
                 var newWordNumber = currentNode.WordNumber + 1;
+
                 currentPhrase.Clear().Append(currentNode.GetFullPhrase(anagram.HintPhrase.Length));
 
                 if (currentPhrase.Length > 0 && newWordNumber < anagram.NumNodes)
@@ -26,16 +27,16 @@ namespace Anagram
 
                 var endIndexOfCurrentPhrase = currentPhrase.Length;
 
-                foreach (var wordLengthKeyValuePair in anagram.WordHash.MainHash)
+                foreach (var (lengthKey, lengthValue) in anagram.WordHash.MainHash)
                 {
-                    if (anagram.CheckLength(wordLengthKeyValuePair.Key, newWordNumber, endIndexOfCurrentPhrase))
+                    if (anagram.CheckLength(lengthKey, newWordNumber, endIndexOfCurrentPhrase))
                     {
-                        foreach (var wordKeyKeyValuePair in wordLengthKeyValuePair.Value)
+                        foreach (var (wordKey, wordValue) in lengthValue)
                         {
                             if (newWordNumber == 1)
                             {
                                 // No need to verify first word because all words were individually filtered
-                                foreach (var word in wordKeyKeyValuePair.Value)
+                                foreach (var word in wordValue)
                                 {
                                     stack.Push(new Node(word, currentNode, newWordNumber));
                                     anagram.NumNodes++;
@@ -43,7 +44,7 @@ namespace Anagram
                             }
                             else
                             {
-                                currentPhrase.Append(wordKeyKeyValuePair.Key);
+                                currentPhrase.Append(wordKey);
                                 var lengthToRemove = currentPhrase.Length - endIndexOfCurrentPhrase;
 
                                 if (newWordNumber > 1 && newWordNumber < anagram.NumWords)
@@ -51,7 +52,7 @@ namespace Anagram
                                     // not the first word and not the last word so test with the hash key, if it passes that all words in its list are valid
                                     if (anagram.IsSubPhraseValid(currentPhrase.ToString()))
                                     {
-                                        foreach (var word in wordKeyKeyValuePair.Value)
+                                        foreach (var word in wordValue)
                                         {
                                             stack.Push(new Node(word, currentNode, newWordNumber));
                                             anagram.NumNodes++;
@@ -67,7 +68,7 @@ namespace Anagram
                                     {
                                         currentPhrase.Remove(endIndexOfCurrentPhrase, lengthToRemove);
 
-                                        foreach (var newWord in wordKeyKeyValuePair.Value)
+                                        foreach (var newWord in wordValue)
                                         {
                                             currentPhrase.Append(newWord);
                                             anagram.VerifyMd5Hash(currentPhrase.ToString());
