@@ -22,7 +22,7 @@ namespace Anagram
 
                 if (currentPhrase.Length > 0 && newWordNumber < anagram.NumNodes)
                 {
-                    currentPhrase.Append(" ");
+                    currentPhrase.Append(' ');
                 }
 
                 var endIndexOfCurrentPhrase = currentPhrase.Length;

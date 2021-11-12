@@ -11,7 +11,7 @@ namespace Anagram
         private MD5 _Md5Hash;
         private int[] _MaxPhraseLengths;
         private int[] _MinPhraseLengths;
-        private readonly StringBuilder _StringBuilder = new StringBuilder(32);
+        private readonly StringBuilder _StringBuilder = new(32);
 
         internal WordHash WordHash;
 

@@ -14,7 +14,7 @@ namespace Anagram
         private const string InputFile = "WordList.txt";
         //private const string InputFile = "WordListAllEnglishWords.txt";
 
-        private static readonly List<TestData> TestDataList = new List<TestData>
+        private static readonly List<TestData> TestDataList = new()
         {
             new TestData("poultry outwits ants", "e4820b45d2277f3844eac66c903e84be"),
             new TestData("poultry outwits ants", "23170acc097c24edb98fc5488ab033fe"),

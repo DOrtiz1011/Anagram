@@ -39,7 +39,7 @@ namespace Anagram
 
                 while (stack.Count > 0)
                 {
-                    stringBuilder.Append(stack.Pop()).Append(" ");
+                    stringBuilder.Append(stack.Pop()).Append(' ');
                 }
 
                 fullPhrase = stringBuilder.Append(Word).ToString();

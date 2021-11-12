@@ -5,7 +5,7 @@ namespace Anagram
 {
     internal sealed class WordHash
     {
-        public readonly Dictionary<int, Dictionary<string, HashSet<string>>> MainHash = new Dictionary<int, Dictionary<string, HashSet<string>>>();
+        public readonly Dictionary<int, Dictionary<string, HashSet<string>>> MainHash = new();
 
         public void AddWord(string newWord)
         {

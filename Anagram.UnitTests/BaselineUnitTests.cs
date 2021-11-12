@@ -11,7 +11,7 @@ namespace Anagram.UnitTests
     public class BaselineUnitTests
     {
         private const string InputFile    = "WordList.txt";
-        private readonly Anagram _Anagram = new Anagram();
+        private readonly Anagram _Anagram = new();
 
         [TestMethod]
         public void TestMethod1()
